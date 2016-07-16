@@ -1,0 +1,35 @@
+
+dataHandlers:
+  - name: "vac_find"
+    setState: "vacancyFindState"
+  - name: "resume_manage"
+  - name: "go_start"
+    setState: "start"
+
+
+states:
+  - start:
+    name: "start"
+    text: "Hello! This is start state"
+    buttons:
+      -
+        - {text: "Поиск вакансий", callback_data: "vac_find"}
+        - {text: "Управление резюме", callback_data: "resume_manage"}
+      -
+        - {text: "Настройки", callback_data: "settings"}
+        - {text: "Забыть меня", callback_data: "forgot"}
+  - vacancyFindState:
+    name: "vacancyFindState"
+    text: "Введите запрос для поиска, либо выберите один из предыдущих запросов списка ниже."
+    textExpected: true
+    textHandlerFunction: vacancySearchTextHandler
+    asyncFunction: true
+    buttons:
+      -
+        - {text: "В начало", callback_data: "go_start"}
+  - vacancySearchState:
+    name: "vacancySearchState"
+    text: "Список вакансий по вашему запросу: \n  ${storage.searchResult}"
+    textExpected: false
+    onEnter: "prepareSearchInfo"
+    buttonsGenerator : "vacancySearchButtonGenerator"

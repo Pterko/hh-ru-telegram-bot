@@ -1,0 +1,6 @@
+node_modules/
+.idea/
+SomeInfo.txt
+bot.log
+config.json
+jsconfig.json

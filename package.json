@@ -1,0 +1,16 @@
+{
+  "name": "Telegram_headhunter_bot_v2",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "js-yaml": "^3.6.1",
+    "jsonfile": "^2.2.3",
+    "log4js": "^0.6.33",
+    "mongoose": "^4.5.2",
+    "morgan": "~1.6.1",
+    "node-telegram-bot-api": "^0.21.1",
+    "request": "^2.71.0",
+    "serve-favicon": "~2.3.0",
+    "yamljs": "^0.2.8"
+  }
+}
