@@ -85,26 +85,32 @@ class messageDispatcher {
         //        log.info("res:",x);
         //    });
         this.bot.editMessageText(stateObject.text,options);
+    }
 
-
+    sendNewMessage(user,text,options){
+        var responseText = eval('`'+text+'`');
+        this.bot.sendMessage(user._id,responseText,options).then((result) =>{
+            log.info("New message sended, result:",result);
+            user.lastMessageId = result.message_id;
+        })
     }
 
     //receives only text-like messages from user
     dispatchMessage(msg, user){
         log.warn("We're in dispatcher!!11");
-        var stateObject = this.scenario.states.find(x => x.name == user.state);
+        var stateObject = this.findStateByName(user.state);
         log.info("StateObject: ",stateObject);
-        if(stateObject.textExpected || stateObject.textExpected == undefined ){
+        if(stateObject.textExpected){
             //accept text and check, that function-handler exists
             if(stateObject.textHandlerFunction != "undefined" && typeof this.scenarioHandler[stateObject.textHandlerFunction] === "function"){
                 //just call this function
-                if(stateObject.asyncFunction){
+                if(stateObject.textHandlerFunctionAsync){
                     this.scenarioHandler[stateObject.textHandlerFunction](user, msg.text, this.textMessageCallbackHandler.bind(this));
                 } else {
                     var functionResult = this.scenarioHandler[stateObject.textHandlerFunction](user, msg.text);
                 }
             } else {
-                log.err("Text handling error occurred! Debug info below. Function name:",stateObject.textHandlerFunction,". Function object:",this.scenarioHandler[stateObject.textHandlerFunction]);
+                log.error("Text handling error occurred! Debug info below. Function name:",stateObject.textHandlerFunction,". Function object:",this.scenarioHandler[stateObject.textHandlerFunction]);
             }
         } else {
             //TODO: think about error messaging, then text don't expected
@@ -114,24 +120,61 @@ class messageDispatcher {
                     inline_keyboard: stateObject.buttons
                 })
             };
-            this.bot.sendMessage(msg.from.id, stateObject.text,options);
+            //TODO: think about removing eval
+            var responseText = eval('`'+stateObject.text+'`');
+            this.bot.sendMessage(msg.from.id, responseText,options);
         }
     }
 
     textMessageCallbackHandler(user, callbackAnswer){
         log.info(this);
+        var promises = []
         if(callbackAnswer.setState){
-            this.changeUserState(user, callbackAnswer.setState);
+            promises.push(this.changeUserState(user, callbackAnswer.setState));
         }
-        user.save();
+        Promise.all(promises).then( () => {
+            user.save();
+        });
     }
 
     changeUserState(user, newState){
-        user.state = newState;
-        log.info("User " + user._id + " state changed to "+newState);
-        log.info(user);
-        user.save();
+        return new Promise( (resolve, reject) => {
+            user.state = newState;
+            log.info("User " + user._id + " state changed to " + newState);
+            log.info(user);
+            //now run onEnter function of new state, and only after all complete method.
+            var stateObject = this.findStateByName(user.state);
+            log.info("StateObject: ",stateObject);
+            //check that onEnter exists
+            if (typeof this.scenarioHandler[stateObject.onEnterHandlerFunction] === "function"){
+                if(stateObject.onEnterHandlerFunctionAsync){
+                    log.info("Runned async version of onEnter function");
+                    this.scenarioHandler[stateObject.onEnterHandlerFunction](user, (user, callbackAnswer) =>{
+                        log.info("useeeeer:",user);
+                        user.save();
+                        if(stateObject.newMessageOnEnter){
+                            this.sendNewMessage(user, stateObject.text);
+                        }
+                        resolve();
+                    });
+                } else {
+                    var functionResult = this.scenarioHandler[stateObject.onEnterHandlerFunction](user);
+                    if(stateObject.newMessageOnEnter){
+                        this.sendNewMessage(user, stateObject.text);
+                    }
+                    user.save();
+                    resolve();
+                }
+            }
+
+        });
     }
+
+
+    findStateByName(name){
+        return this.scenario.states.find(x => x.name == name);
+    }
+
 
     // gets User object from mongodb
     getUserObjectFromMsg(msg, callback){
@@ -163,6 +206,7 @@ class messageDispatcher {
             }
         });
     }
+
 }
 
 module.exports = messageDispatcher;

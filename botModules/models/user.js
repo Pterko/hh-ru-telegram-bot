@@ -8,6 +8,7 @@ var Schema = mongoose.Schema;
 
 var userSchema = new Schema({
     _id:  Number,
+    lastMessageId: Number,
     firstName: String,
     lastName: String,
     username: String,
@@ -31,7 +32,13 @@ var userSchema = new Schema({
         }
     ],
     storage:{
-        vacancySearchQuery: String
+        search:{
+            vacancySearchQuery: String,
+            page: Number,
+            pages: Number,
+            found: Number,
+            vacancyStr: String
+        }
     }
 
 });

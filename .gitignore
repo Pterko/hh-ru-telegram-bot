@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 node_modules/
 .idea/
 SomeInfo.txt
@@ -43,4 +42,3 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
->>>>>>> 38a46e7889c5abab393e2ad84ab6736b8a2498ba
