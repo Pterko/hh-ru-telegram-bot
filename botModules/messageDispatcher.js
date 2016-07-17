@@ -59,41 +59,102 @@ class messageDispatcher {
         if (this.dataHandlersNames.indexOf(msg.data) >= 0){
             var dataHandler = this.scenario.dataHandlers.find(x => x.name == msg.data);
             log.info("DataHandler: ",dataHandler);
+            var promises = [];
             if (dataHandler.setState){
                 user.state = dataHandler.setState;
             }
-            user.save();
-            this.updateLastMessageAccordingToState(msg, user);
+            if (typeof this.scenarioHandler[dataHandler.handlerFunction] === "function" ){
+                if(dataHandler.handlerFunctionAsync == true){
+                    promises.push(new Promise((resolve,reject) => {
+                        this.scenarioHandler[dataHandler.handlerFunction](user, msg, (callbackAnswer) =>{
+                            resolve();
+                        });
+                    }))
+                } else {
+
+                }
+            }
+            Promise.all(promises).then( () => {
+                user.save();
+                this.updateLastMessageAccordingToState(msg, user);
+            });
         } else {
             this.bot.sendMessage(msg.from.id,"Don't understand this data param");
         }
     }
 
     updateLastMessageAccordingToState(msg, user){
-        var stateObject = this.scenario.states.find(x => x.name == user.state);
-        log.info("StateObject: ",stateObject);
-        var options = {
-            chat_id: user._id,
-            message_id: msg.message.message_id,
-            reply_markup: JSON.stringify({
-                inline_keyboard: stateObject.buttons
-            })
-        };
-        log.info("Updated buttons: ", options);
-        //this.bot.editMessageReplyMarkup(options, {chat_id: user._id, message_id: msg.message.message_id})
-        //    .then((x)=>{
-        //        log.info("res:",x);
+        //var stateObject = this.scenario.states.find(x => x.name == user.state);
+        //log.info("StateObject: ",stateObject);
+        //var options = {
+        //    chat_id: user._id,
+        //    message_id: msg.message.message_id,
+        //};
+        //if (stateObject.inlineButtonsGenerator){
+        //    var inlineButtons = this.scenarioHandler[stateObject.inlineButtonsGenerator](user);
+        //    options.reply_markup = JSON.stringify({
+        //        inline_keyboard: inlineButtons
         //    });
-        this.bot.editMessageText(stateObject.text,options);
+        //} else {
+        //    options.reply_markup = JSON.stringify({
+        //        inline_keyboard: stateObject.buttons
+        //    });
+        //}
+
+        this.emitMessage(user, undefined, undefined , true);
+        //log.info("Updated buttons: ", options);
+        //this.bot.editMessageText(stateObject.text,options);
     }
 
-    sendNewMessage(user,text,options){
-        var responseText = eval('`'+text+'`');
-        this.bot.sendMessage(user._id,responseText,options).then((result) =>{
-            log.info("New message sended, result:",result);
-            user.lastMessageId = result.message_id;
-        })
+    //sendNewMessage(user,text,options){
+    //    var responseText = eval('`'+text+'`');
+    //    this.bot.sendMessage(user._id,responseText,options).then((result) =>{
+    //        log.info("New message sended, result:",result);
+    //        user.lastMessageId = result.message_id;
+    //    })
+    //}
+
+    emitMessage(user,text,options,update){
+        var stateObject = this.findStateByName(user.state);
+        log.info("Entered in emitMessage func, state:",stateObject);
+
+        if(options == undefined){
+            options = {};
+        }
+
+        let responseText = "";
+        if (text){
+            responseText = eval('`'+text+'`');
+        } else {
+            responseText = eval('`'+stateObject.text+'`');
+        }
+
+        if (stateObject.inlineButtonsGenerator){
+            var inlineButtons = this.scenarioHandler[stateObject.inlineButtonsGenerator](user);
+            log.info("Used inline generator, buttons:",inlineButtons);
+            options.reply_markup = JSON.stringify({
+                inline_keyboard: inlineButtons
+            });
+        } else {
+            log.info("Don't used inline generator");
+            options.reply_markup = JSON.stringify({
+                inline_keyboard: stateObject.buttons
+            });
+        }
+        if (update == true){
+            options.chat_id = user._id;
+            options.message_id = user.lastMessageId;
+            this.bot.editMessageText(responseText,options);
+        } else {
+            log.info("Send message with options:",options);
+            this.bot.sendMessage(user._id, responseText, options).then((result) => {
+                log.info("New message sended, result:", result);
+                user.lastMessageId = result.message_id;
+                user.save();
+            });
+        }
     }
+
 
     //receives only text-like messages from user
     dispatchMessage(msg, user){
@@ -122,13 +183,13 @@ class messageDispatcher {
             };
             //TODO: think about removing eval
             var responseText = eval('`'+stateObject.text+'`');
-            this.bot.sendMessage(msg.from.id, responseText,options);
+            this.emitMessage(user,responseText,options,false);
         }
     }
 
     textMessageCallbackHandler(user, callbackAnswer){
         log.info(this);
-        var promises = []
+        var promises = [];
         if(callbackAnswer.setState){
             promises.push(this.changeUserState(user, callbackAnswer.setState));
         }
@@ -153,7 +214,9 @@ class messageDispatcher {
                         log.info("useeeeer:",user);
                         user.save();
                         if(stateObject.newMessageOnEnter){
-                            this.sendNewMessage(user, stateObject.text);
+                            this.emitMessage(user, stateObject.text, {}, false);
+                        } else {
+                            this.emitMessage(user, stateObject.text, {}, true);
                         }
                         resolve();
                     });

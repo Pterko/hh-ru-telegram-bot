@@ -5,6 +5,9 @@ dataHandlers:
   - name: "resume_manage"
   - name: "go_start"
     setState: "start"
+  - name: "search_next_page"
+    handlerFunction: "searchNextPageEvent"
+    handlerFunctionAsync: true
 
 
 states:
@@ -29,9 +32,9 @@ states:
         - {text: "В начало", callback_data: "go_start"}
   - vacancySearchState:
     name: "vacancySearchState"
-    text: "Список вакансий по вашему запросу: \n \n  ${user.storage.search.vacancyStr}"
+    text: "По вашему запросу найдено ${user.storage.search.found} вакансий. Показана страница ${user.storage.search.page} из ${user.storage.search.pages}. \n \n  ${user.storage.search.vacancyStr}"
     textExpected: false
     onEnterHandlerFunction: prepareSearchInfo
     onEnterHandlerFunctionAsync: true
     newMessageOnEnter: true
-    buttonsGenerator : "vacancySearchButtonGenerator"
+    inlineButtonsGenerator : "vacancySearchButtonsGenerator"
