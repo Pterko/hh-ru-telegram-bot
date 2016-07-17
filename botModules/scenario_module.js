@@ -99,6 +99,49 @@ class scenarioModule {
         });
     }
 
+    forgetUser(user, msg, callback){
+        callback(user,{});
+        user.remove();
+    }
+
+    resumeManageSelect(user, msg, callback){
+        //in this method we need to check token existence
+        log.info("We're in resume manage select function ",user.token);
+        log.info(user.token.length);
+        var callbackAnswer = {};
+        if (user.token.access_token == null || user.token.access_token == undefined  ){
+            log.info("We in no token branch");
+            // change state to awaitTokenState
+            callbackAnswer.setState = "awaitTokenState";
+            callback(callbackAnswer);
+        } else {
+
+        }
+    }
+
+    acceptCode(code, user_id){
+        //so, in this method we accept code from user and try to receive normal hh.ru api code
+        log.info("Received code ",code," for user ",user_id);
+        this.handler.getUserObjectFromMsg({from:{id:user_id}},(err,user) =>{
+            log.info("User: ",user);
+
+            user.token.access_token = "123";
+            hh.getAccessTokenByCode(code, (err,json) =>{
+                if (err) {
+                    bot.sendMessage(user_id,"Токен неправильный, попробуйте еще.");
+                    throw new Error(err);
+                }
+                user.token = json;
+                //user.token.expires_at = Date.now() + parseInt(user.token.expires_in);
+                user.token.expires_at = 0;
+                log.warn(user);
+                user.markModified('token');
+                user.save(result => log.warn(result)).then(result => log.warn(result));
+                this.handler.foreignEventReceiver(user_id,{setState:"tokenReceivedSuccess"});
+            });
+        });
+    }
+
 }
 
 module.exports = scenarioModule;

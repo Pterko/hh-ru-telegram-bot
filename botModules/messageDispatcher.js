@@ -9,6 +9,7 @@ var YAML = require('js-yaml');
 var fs = require('fs');
 
 var mongoose = require("mongoose");
+mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/hhTelegramBot');
 var User = require("./models/user");
 
@@ -67,6 +68,12 @@ class messageDispatcher {
                 if(dataHandler.handlerFunctionAsync == true){
                     promises.push(new Promise((resolve,reject) => {
                         this.scenarioHandler[dataHandler.handlerFunction](user, msg, (callbackAnswer) =>{
+                            log.info("CallbackAnswer:",callbackAnswer);
+                            if(callbackAnswer.setState){
+                                this.changeUserState(user, callbackAnswer.setState).then((resolveLocal, rejectLocal) => {
+                                    resolve();
+                                });
+                            }
                             resolve();
                         });
                     }))
@@ -141,6 +148,12 @@ class messageDispatcher {
                 inline_keyboard: stateObject.buttons
             });
         }
+
+        if (stateObject.parseMode){
+            options.parse_mode = stateObject.parseMode;
+        }
+
+
         if (update == true){
             options.chat_id = user._id;
             options.message_id = user.lastMessageId;
@@ -149,8 +162,14 @@ class messageDispatcher {
             log.info("Send message with options:",options);
             this.bot.sendMessage(user._id, responseText, options).then((result) => {
                 log.info("New message sended, result:", result);
-                user.lastMessageId = result.message_id;
-                user.save();
+                user.lastMessageId = parseInt(result.message_id);
+                user.markModified('lastMessageId');
+
+                user.save().then( (result, result1) => {
+                    log.info("res1",result);
+                    log.info("res2",result1);
+                });
+                log.info(user);
             });
         }
     }
@@ -198,6 +217,14 @@ class messageDispatcher {
         });
     }
 
+    foreignEventReceiver(user_id, options){
+        this.getUserObjectFromMsg({from:{id:user_id}},(err,user) => {
+            if (options.setState) {
+                this.changeUserState(user, options.setState);
+            }
+        });
+    }
+
     changeUserState(user, newState){
         return new Promise( (resolve, reject) => {
             user.state = newState;
@@ -223,11 +250,21 @@ class messageDispatcher {
                 } else {
                     var functionResult = this.scenarioHandler[stateObject.onEnterHandlerFunction](user);
                     if(stateObject.newMessageOnEnter){
-                        this.sendNewMessage(user, stateObject.text);
+                        this.emitMessage(user, stateObject.text, {}, false);
+                    } else {
+                        this.emitMessage(user, stateObject.text, {}, true);
                     }
                     user.save();
                     resolve();
                 }
+            } else {
+                if(stateObject.newMessageOnEnter){
+                    this.emitMessage(user, stateObject.text, {}, false);
+                } else {
+                    this.emitMessage(user, stateObject.text, {}, true);
+                }
+                user.save();
+                resolve();
             }
 
         });
@@ -256,7 +293,7 @@ class messageDispatcher {
                     username: msg.from.username,
                     state: "start"
                 };
-                User.create(newUserObject,function(err, user){
+                User.create(newUserObject,(err, user) => {
                     if (err){
                         log.warn(err);
                         return callback(err);
