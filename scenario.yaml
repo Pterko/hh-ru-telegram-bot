@@ -8,6 +8,9 @@ dataHandlers:
   - name: "search_next_page"
     handlerFunction: "searchNextPageEvent"
     handlerFunctionAsync: true
+  - name: "search_prev_page"
+    handlerFunction: "searchPrevPageEvent"
+    handlerFunctionAsync: true
 
 
 states:
@@ -32,7 +35,7 @@ states:
         - {text: "В начало", callback_data: "go_start"}
   - vacancySearchState:
     name: "vacancySearchState"
-    text: "По вашему запросу найдено ${user.storage.search.found} вакансий. Показана страница ${user.storage.search.page} из ${user.storage.search.pages}. \n \n  ${user.storage.search.vacancyStr}"
+    text: "По вашему запросу найдено ${user.storage.search.found} вакансий. Показана страница ${user.storage.search.page + 1} из ${user.storage.search.pages}. \n \n  ${user.storage.search.vacancyStr}"
     textExpected: false
     onEnterHandlerFunction: prepareSearchInfo
     onEnterHandlerFunctionAsync: true
