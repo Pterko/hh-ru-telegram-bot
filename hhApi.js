@@ -10,9 +10,9 @@ var useragent = "HeadHunterTelegramBot/1.0 (pter96@gmail.com)";
 
 
 
-module.exports.findVacanciesByQuery = function(query,callback){
+module.exports.findVacanciesByQuery = function(options,callback){
     request.get({
-        url : 'https://api.hh.ru/vacancies?text='+encodeURIComponent(query)+'&order_by=relevance&area=1&per_page=10',
+        url : 'https://api.hh.ru/vacancies?text='+encodeURIComponent(options.query)+'&order_by=relevance&area=1&per_page=' + options.per_page + '&page=' + options.page,
         headers: {
             //'Authorization' : ' Bearer '+token,
             'User-Agent' : useragent
