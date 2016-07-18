@@ -8,7 +8,7 @@ var config = jsonfile.readFileSync("./config.json");  // init config
 
 var useragent = "HeadHunterTelegramBot/1.0 (pter96@gmail.com)";
 
-
+//TODO: add spaces after commas in functions
 
 module.exports.findVacanciesByQuery = function(options,callback){
     request.get({
@@ -57,7 +57,7 @@ module.exports.getResumeViews = function(token,resume_id,callback){
 
 
 
-
+//TODO: understand why function handler differs from others
 module.exports.updateResume = function(token,resume_id,callback){
     request.post({
         url : 'https://api.hh.ru/resumes/'+resume_id+'/publish',
