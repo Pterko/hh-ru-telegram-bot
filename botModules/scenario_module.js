@@ -133,7 +133,7 @@ class scenarioModule {
                 }
                 user.token = json;
                 //user.token.expires_at = Date.now() + parseInt(user.token.expires_in);
-                user.token.expires_at = 0;
+                user.token.expires_at = Math.round(Date.now()/1000) + parseInt(json.expires_in);
                 log.warn(user);
                 user.markModified('token');
                 user.save(result => log.warn(result)).then(result => log.warn(result));

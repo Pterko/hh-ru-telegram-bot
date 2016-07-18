@@ -18,6 +18,7 @@ var userSchema = new Schema({
         access_token: String,
         token_type: String,
         expires_at: Number,
+        expires_in: Number,
         refresh_token: String
     },
     lastTimeViews:[
