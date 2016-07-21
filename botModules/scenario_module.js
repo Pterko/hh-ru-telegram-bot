@@ -42,6 +42,43 @@ class scenarioModule {
     }
 
 
+    resumeSelectButtonsGenerator(user){
+        let buttonsArray = [];
+        for (let i = 0; i < user.storage.resume.resumes.length; i++){
+            let resume = JSON.parse(user.storage.resume.resumes[i]);
+            buttonsArray.push([{text: `№${i+1} - ${resume.title}`, callback_data: `select_resume_${i}`}]);
+        }
+
+        log.info("Buttons line generated:",buttonsArray);
+        return buttonsArray;
+    }
+
+    specificResumeButtonsGenerator(user){
+        let buttonsArray = [];
+        let selectedResume = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]);
+        //create button for "auto-update enable/disable"
+        if (user.autoUpdatedResumes.find( x => x.id == selectedResume.id)){
+            buttonsArray.push([{text:"Выключить автообновление резюме", callback_data:"resume_autoupdate_disable"}]);
+        } else {
+            buttonsArray.push([{text:"Включить автообновление резюме", callback_data:"resume_autoupdate_enable"}]);
+        }
+        //create button for "resume views monitoring enable/disable"
+        if (user.lastTimeViews.find( x => x.id == selectedResume.id)){
+            buttonsArray.push([{text:"Выключить мониторинг просмотров резюме", callback_data:"resume_monitoring_disable"}]);
+        } else {
+            buttonsArray.push([{text:"Включить мониторинг просмотров резюме", callback_data:"resume_monitoring_enable"}]);
+        }
+
+        buttonsArray.push([{text:"Обновить резюме", callback_data:"resume_update"}]);
+        buttonsArray.push([{text:"Увидеть просмотры резюме", callback_data:"resume_show_views"}]);
+        buttonsArray.push([{text:"Вернуться в начало", callback_data:"go_start"}]);
+
+
+        return buttonsArray;
+    }
+
+
+
     prepareSearchInfo(user, callback){
         user.storage.search.page = 0;
         this.generateVacanciesForUserSearch(user,callback);
@@ -108,15 +145,43 @@ class scenarioModule {
         //in this method we need to check token existence
         log.info("We're in resume manage select function ",user.token);
         log.info(user.token.length);
-        var callbackAnswer = {};
+        let callbackAnswer = {};
         if (user.token.access_token == null || user.token.access_token == undefined  ){
             log.info("We in no token branch");
             // change state to awaitTokenState
             callbackAnswer.setState = "awaitTokenState";
-            callback(callbackAnswer);
+            return callback(callbackAnswer);
         } else {
+            //check that user have resumes and token is working
+            hh.getMyResumes(user.token.access_token, (err,json) => {
+                if (err) {
+                    return bot.sendMessage(user._id, "Возникла ошибка при выполнении запроса:", err);
+                }
+                let resumes  = json.items;
+                if (resumes.length == 0){
+                    callbackAnswer.setState = "noResumesState";
+                    return callback(callbackAnswer);
+                }
+                user.storage.resume.resumes = [];
+                // if we have resumes, prepare info for button and text-generators
+                for(let i = 0; i < resumes.length; i++){
+                    user.storage.resume.resumes.push(JSON.stringify(resumes[i]));
+                }
+                callbackAnswer.setState = "selectResumeState";
+                return callback(callbackAnswer);
 
+            });
         }
+    }
+
+    handleResumeSelect(user, msg){
+        log.info("I'M INTO HANDLE RESUME SELECT");
+        if (msg.value){
+            user.storage.resume.selectedResumeOffset = msg.value;
+            //so, now we need to change our state specific resume dialog
+            return { setState: "specificResumeState" };
+        }
+        return {};
     }
 
     acceptCode(code, user_id){
