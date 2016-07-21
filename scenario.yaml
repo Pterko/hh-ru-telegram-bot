@@ -20,7 +20,9 @@ dataHandlers:
   - name: "resume_manage"
     handlerFunction: "resumeManageSelect"
     handlerFunctionAsync: true
-
+  - name: "select_resume_INTVALUE"
+    nameIsRegexp: true
+    handlerFunction: "handleResumeSelect"
 
 
 
@@ -76,3 +78,18 @@ states:
     buttons:
           -
             - {text: "Вернуться в начало", callback_data: "go_start"}
+  - noResumesState:
+    name: "noResumesState"
+    text: "У вас еще нет ни одного резюме! Попробуйте эту функцию позже, когда добавите хотя бы одно"
+    buttons:
+              -
+                - {text: "Вернуться в начало", callback_data: "go_start"}
+  - selectResumeState:
+    name: "selectResumeState"
+    text: "Пожалуйста, выберите интересующее Вас резюме из списка ниже"
+    inlineButtonsGenerator : "resumeSelectButtonsGenerator"
+
+  - specificResumeState:
+    name: "specificResumeState"
+    text: "Название резюме: ${JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).title}"
+    inlineButtonsGenerator : "specificResumeButtonsGenerator"
