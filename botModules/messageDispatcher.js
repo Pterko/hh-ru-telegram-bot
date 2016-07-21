@@ -75,31 +75,57 @@ class messageDispatcher {
                     promises.push(new Promise((resolve,reject) => {
                         this.scenarioHandler[dataHandler.handlerFunction](user, msg, (callbackAnswer) =>{
                             log.info("CallbackAnswer:",callbackAnswer);
+                            var localPromises = [];
                             if(callbackAnswer.setState){
-                                this.changeUserState(user, callbackAnswer.setState).then((resolveLocal, rejectLocal) => {
-                                    resolve();
-                                });
+                                localPromises.push(this.changeUserState(user, callbackAnswer.setState));
                             }
-                            resolve();
+                            if (callbackAnswer.showAlert){
+                                log.info("Try to answer with alert");
+                                localPromises.push( new Promise( (localResolve, localReject) => {
+                                    bot.answerCallbackQuery(msg.id, callbackAnswer.showAlert, true)
+                                        .then( result => {
+                                            log.info("CallbackQuery result: ",result);
+                                            localResolve();
+                                        }, error =>{
+                                            log.err("CallbackQuery error: ",error);
+
+                                        });
+                                }));
+                            }
+                            Promise.all(localPromises).then( () => {
+                                resolve();
+                            });
                         });
                     }))
                 } else {
                     promises.push(new Promise((resolve,reject) => {
                         let callbackAnswer = this.scenarioHandler[dataHandler.handlerFunction](user, msg);
                         log.info("CallbackAnswer:",callbackAnswer);
+                        var localPromises = [];
                         if(callbackAnswer.setState){
-                            this.changeUserState(user, callbackAnswer.setState).then((resolveLocal, rejectLocal) => {
-                                resolve();
-                            });
-                        } else {
-                            resolve();
+                            localPromises.push(this.changeUserState(user, callbackAnswer.setState));
                         }
+                        if (callbackAnswer.showAlert){
+                            log.info("Try to answer with alert");
+                            localPromises.push( new Promise( (localResolve, localReject) => {
+                                this.bot.answerCallbackQuery(msg.id, callbackAnswer.showAlert, false)
+                                    .then( result => {
+                                        log.info("CallbackQuery result: ",result);
+                                        localResolve();
+                                    });
+                            }));
+                        }
+                        Promise.all(localPromises).then( () => {
+                            resolve();
+                        });
+
                     }))
                 }
             }
             Promise.all(promises).then( () => {
-                user.save();
-                this.updateLastMessageAccordingToState(msg, user);
+                user.save().then( result => {
+                    this.updateLastMessageAccordingToState(msg, user);
+                });
             });
         } else {
             this.bot.sendMessage(msg.from.id,"Don't understand this data param");
