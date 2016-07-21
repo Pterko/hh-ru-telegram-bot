@@ -11,34 +11,37 @@ var userSchema = new Schema({
     lastMessageId: Number,
     firstName: String,
     lastName: String,
-    username: String,
     state: String,
-    stateValue: String,
-    token:{
+    username: String,
+    token: {
         access_token: String,
         token_type: String,
         expires_at: Number,
         expires_in: Number,
         refresh_token: String
     },
-    lastTimeViews:[
+    lastTimeViews: [
         {
             id: String,
             views: Number
         }
     ],
-    autoUpdatedResumes:[
+    autoUpdatedResumes: [
         {
             id: String
         }
     ],
-    storage:{
-        search:{
+    storage: {
+        search: {
             vacancySearchQuery: String,
             page: Number,
             pages: Number,
             found: Number,
             vacancyStr: String
+        },
+        resume: {
+            resumes: [String], // each element: resume
+            selectedResumeOffset: Number
         }
     }
 
