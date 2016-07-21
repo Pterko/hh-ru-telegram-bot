@@ -23,6 +23,10 @@ dataHandlers:
   - name: "select_resume_INTVALUE"
     nameIsRegexp: true
     handlerFunction: "handleResumeSelect"
+  - name: "resume_autoupdate_enable"
+    handlerFunction: "enableResumeAutoupdate"
+  - name: "resume_autoupdate_disable"
+    handlerFunction: "disableResumeAutoupdate"
 
 
 

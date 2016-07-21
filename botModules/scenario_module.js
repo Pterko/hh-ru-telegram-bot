@@ -94,6 +94,36 @@ class scenarioModule {
         this.generateVacanciesForUserSearch(user,callback);
     }
 
+    enableResumeAutoupdate(user, msg){
+        log.info("We are in enableResumeAutoupdate function");
+        let currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
+        if (user.autoUpdatedResumes.find( x => x.id == currentResumeId )){
+            return {
+                showAlert: "Автообновление уже включено!"
+            };
+        }
+        user.autoUpdatedResumes.push( {id: currentResumeId} );
+        log.info("User after push:",user);
+        return {
+            showAlert: "Автообновление резюме было включено!"
+        };
+    }
+
+    disableResumeAutoupdate(user, msg){
+        log.info("We are in disableResumeAutoupdate function");
+        let currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
+        let resumeIndex = user.autoUpdatedResumes.findIndex( x => x.id == currentResumeId);
+        log.info("Index of deleted element:",resumeIndex);
+        if (resumeIndex > -1) {
+            user.autoUpdatedResumes.splice(resumeIndex, 1);
+        }
+        log.info("User after splice:",user);
+        return {
+            showAlert: "Автообновление резюме было выключено!"
+        };
+    }
+
+
     generateVacanciesForUserSearch(user,callback){
         hh.findVacanciesByQuery({
             query: user.storage.search.vacancySearchQuery,
