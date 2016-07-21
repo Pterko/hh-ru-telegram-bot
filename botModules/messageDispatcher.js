@@ -57,13 +57,19 @@ class messageDispatcher {
         log.warn("We're in callback handler");
         log.info(msg);
         // here we need to change stored value of user-state and update previous message
-        if (this.dataHandlersNames.indexOf(msg.data) >= 0){
-            var dataHandler = this.scenario.dataHandlers.find(x => x.name == msg.data);
-            log.info("DataHandler: ",dataHandler);
-            var promises = [];
+        let dataHandler = this.findDataHandlerByName(msg.data);
+        log.info("DataHandler: ",dataHandler);
+        if (dataHandler) {
+            let promises = [];
             if (dataHandler.setState){
                 user.state = dataHandler.setState;
             }
+            //append regexp-finded value to msg
+            if (dataHandler.value){
+                msg.value = dataHandler.value;
+            }
+
+
             if (typeof this.scenarioHandler[dataHandler.handlerFunction] === "function" ){
                 if(dataHandler.handlerFunctionAsync == true){
                     promises.push(new Promise((resolve,reject) => {
@@ -78,7 +84,17 @@ class messageDispatcher {
                         });
                     }))
                 } else {
-
+                    promises.push(new Promise((resolve,reject) => {
+                        let callbackAnswer = this.scenarioHandler[dataHandler.handlerFunction](user, msg);
+                        log.info("CallbackAnswer:",callbackAnswer);
+                        if(callbackAnswer.setState){
+                            this.changeUserState(user, callbackAnswer.setState).then((resolveLocal, rejectLocal) => {
+                                resolve();
+                            });
+                        } else {
+                            resolve();
+                        }
+                    }))
                 }
             }
             Promise.all(promises).then( () => {
@@ -273,6 +289,36 @@ class messageDispatcher {
 
     findStateByName(name){
         return this.scenario.states.find(x => x.name == name);
+    }
+
+    findDataHandlerByName(name){
+        let dataHandler = this.scenario.dataHandlers.find(x => x.name == name);
+        //so, if we don't find dataHandler by name, try to find it by param
+        if (dataHandler == undefined){
+            log.info("Try to find dataHandler by regexp");
+            let appendedValue;
+            dataHandler = this.scenario.dataHandlers.find( x => {
+                if (x.nameIsRegexp){
+                    let newName = x.name.replace("INTVALUE","(\\d{1,})");
+                    log.info(newName);
+                    log.warn(name.match(newName));
+                    if (name.match(newName)) {
+                        appendedValue = name.match(newName)[1];
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                return false;
+            });
+
+            //if dataHandler found, append value to it
+            if (dataHandler){
+                dataHandler.value = appendedValue;
+                log.info("Finded dataHandler:",dataHandler);
+            }
+        }
+        return dataHandler;
     }
 
 
