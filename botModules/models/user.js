@@ -28,7 +28,8 @@ var userSchema = new Schema({
     ],
     autoUpdatedResumes: [
         {
-            id: String
+            id: String,
+            lastTimeUpdate: Number
         }
     ],
     storage: {
@@ -41,7 +42,13 @@ var userSchema = new Schema({
         },
         resume: {
             resumes: [String], // each element: resume
-            selectedResumeOffset: Number
+            selectedResumeOffset: Number,
+            viewsShow: {
+                pages: Number,
+                page: Number,
+                found: Number,
+                pageStr: String
+            }
         }
     }
 
