@@ -62,7 +62,7 @@ class messageDispatcher {
         if (dataHandler) {
             let promises = [];
             if (dataHandler.setState){
-                user.state = dataHandler.setState;
+                promises.push(this.changeUserState(user, dataHandler.setState));
             }
             //append regexp-finded value to msg
             if (dataHandler.value){
@@ -82,7 +82,7 @@ class messageDispatcher {
                             if (callbackAnswer.showAlert){
                                 log.info("Try to answer with alert");
                                 localPromises.push( new Promise( (localResolve, localReject) => {
-                                    bot.answerCallbackQuery(msg.id, callbackAnswer.showAlert, true)
+                                    this.bot.answerCallbackQuery(msg.id, callbackAnswer.showAlert, false)
                                         .then( result => {
                                             log.info("CallbackQuery result: ",result);
                                             localResolve();
