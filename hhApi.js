@@ -43,11 +43,11 @@ module.exports.updateToken = function(token,refreshToken,callback){
 
 
 
-module.exports.getResumeViews = function(token,resume_id,callback){
+module.exports.getResumeViews = function(options,callback){
     request.get({
-        url : 'https://api.hh.ru/resumes/'+resume_id+'/views',
+        url : 'https://api.hh.ru/resumes/'+options.resume_id+'/views?per_page=' + (options.per_page || 20) + '&page=' + (options.page || 0),
         headers: {
-            'Authorization' : ' Bearer '+token,
+            'Authorization' : ' Bearer '+options.token,
             'User-Agent' : useragent
         }
     },function(err,res,body){
