@@ -77,6 +77,85 @@ class scenarioModule {
         return buttonsArray;
     }
 
+    resumeUpdateHandle(user, msg, callback){
+        log.info("We're into resumeUpdateHandle function");
+        let selectedResume = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]);
+        if (selectedResume.status.id == "published"){
+            hh.updateResume(user.token.access_token, selectedResume.id, (err,res) =>{
+                log.info("UpdateResumeResult:"+res);
+                if ( res == 204 ){
+                    let autoUpdatedResume = user.autoUpdatedResumes.find( x => x.id == selectedResume.id);
+                    if (autoUpdatedResume){
+                        autoUpdatedResume.lastTimeUpdate = Date.now();
+                    }
+                    return callback({
+                        showAlert: "Резюме обновлено"
+                    });
+                }
+                if ( res == 429 ){
+                    return callback({
+                        showAlert: "Еще рано для обновления, попробуйте позже"
+                    });
+                }
+            });
+        } else {
+            return callback({
+                showAlert: "Данное резюме еще не опубликовано, не могу обновить его!"
+            })
+        }
+    }
+
+    // this method should return buttons array
+    resumeViewsButtonsGenerator(user){
+        let buttonsArrayLine = [];
+        if (user.storage.resume.viewsShow.page > 0){
+            buttonsArrayLine.push({text: "Предыдущая страница", callback_data: "resume_views_prev_page"});
+        }
+        if (user.storage.resume.viewsShow.page != user.storage.resume.viewsShow.pages - 1 ){
+            buttonsArrayLine.push({text: "Следующая страница", callback_data: "resume_views_next_page"});
+        }
+        buttonsArrayLine.push({text: "К резюме", callback_data: "go_specific_resume_menu"});
+
+        log.info("Buttons line generated:",buttonsArrayLine);
+        return [buttonsArrayLine];
+    }
+
+    prepareViewsInfo(user, callback){
+        log.warn("We're in prepareViewsInfo");
+        user.storage.resume.viewsShow.page = 0;
+        this.generateViewsForResumeViewsShow(user, callback);
+    }
+
+    generateViewsForResumeViewsShow(user, callback){
+        hh.getResumeViews({
+            token: user.token.access_token,
+            resume_id: JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id,
+            page: user.storage.resume.viewsShow.page,
+            per_page: 10
+        }, (err,json) => {
+            if(err){
+                throw new Error(err);
+            }
+            user.storage.resume.viewsShow.page = json.page;
+            user.storage.resume.viewsShow.pages = json.pages;
+            user.storage.resume.viewsShow.found = json.found;
+            //now we need to generate String-list for message
+            log.info(json);
+            var viewsStr = "";
+            for(let view of json.items){
+                viewsStr += view.created_at + " | ";
+
+                viewsStr += `[${view.employer.name}](${view.employer.url})`;
+
+                viewsStr += "\n";
+
+            }
+
+            user.storage.resume.viewsShow.pageStr = viewsStr;
+            log.info("Prepared pageStr, user looks now like: ",user);
+            callback(user, undefined);
+        });
+    }
 
 
     prepareSearchInfo(user, callback){
@@ -123,6 +202,35 @@ class scenarioModule {
         };
     }
 
+
+    enableResumeMonitoring(user, msg){
+        log.info("We are in enableResumeMonitoring function");
+        let currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
+        if (user.lastTimeViews.find( x => x.id == currentResumeId )){
+            return {
+                showAlert: "Мониторинг уже включен!"
+            };
+        }
+        user.lastTimeViews.push( {id: currentResumeId, views: JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).new_views } );
+        log.info("User after push:",user);
+        return {
+            showAlert: "Мониторинг новых просмотров активирован!"
+        };
+    }
+
+    disableResumeMonitoring(user, msg){
+        log.info("We are in disableResumeMonitoring function");
+        let currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
+        let resumeIndex = user.lastTimeViews.findIndex( x => x.id == currentResumeId);
+        log.info("Index of deleted element:",resumeIndex);
+        if (resumeIndex > -1) {
+            user.lastTimeViews.splice(resumeIndex, 1);
+        }
+        log.info("User after splice:",user);
+        return {
+            showAlert: "Мониторинг резюме деактивировано!"
+        };
+    }
 
     generateVacanciesForUserSearch(user,callback){
         hh.findVacanciesByQuery({

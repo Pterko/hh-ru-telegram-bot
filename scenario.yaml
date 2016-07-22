@@ -27,6 +27,17 @@ dataHandlers:
     handlerFunction: "enableResumeAutoupdate"
   - name: "resume_autoupdate_disable"
     handlerFunction: "disableResumeAutoupdate"
+  - name: "resume_monitoring_enable"
+    handlerFunction: "enableResumeMonitoring"
+  - name: "resume_monitoring_disable"
+    handlerFunction: "disableResumeMonitoring"
+  - name: "resume_update"
+    handlerFunction: "resumeUpdateHandle"
+    handlerFunctionAsync: true
+  - name: "go_specific_resume_menu"
+    setState: "specificResumeState"
+  - name: "resume_show_views"
+    setState: "resumeViewsShowState"
 
 
 
@@ -97,3 +108,11 @@ states:
     name: "specificResumeState"
     text: "Название резюме: ${JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).title}"
     inlineButtonsGenerator : "specificResumeButtonsGenerator"
+  - resumeViewsShowState:
+    name: "resumeViewsShowState"
+    text: "У вашего резюме ${user.storage.resume.viewsShow.found} просмотров. Показана страница ${user.storage.resume.viewsShow.page + 1} из ${user.storage.resume.viewsShow.pages}. \n \n${user.storage.resume.viewsShow.pageStr}"
+    textExpected: false
+    onEnterHandlerFunction: prepareViewsInfo
+    onEnterHandlerFunctionAsync: true
+    inlineButtonsGenerator : "resumeViewsButtonsGenerator"
+    parseMode: "markdown"
