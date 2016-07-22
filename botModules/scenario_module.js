@@ -126,6 +126,7 @@ class scenarioModule {
         this.generateViewsForResumeViewsShow(user, callback);
     }
 
+    //TODO: deal with pagination correctly
     generateViewsForResumeViewsShow(user, callback){
         hh.getResumeViews({
             token: user.token.access_token,
