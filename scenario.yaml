@@ -38,7 +38,12 @@ dataHandlers:
     setState: "specificResumeState"
   - name: "resume_show_views"
     setState: "resumeViewsShowState"
-
+  - name: "resume_views_prev_page"
+    handlerFunction: "viewsShowPrevPageEvent"
+    handlerFunctionAsync: true
+  - name: "resume_views_next_page"
+    handlerFunction: "viewsShowNextPageEvent"
+    handlerFunctionAsync: true
 
 
 states:

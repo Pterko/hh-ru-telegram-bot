@@ -126,7 +126,18 @@ class scenarioModule {
         this.generateViewsForResumeViewsShow(user, callback);
     }
 
-    //TODO: deal with pagination correctly
+
+    viewsShowNextPageEvent(user, msg, callback){
+        user.storage.resume.viewsShow.page++;
+        this.generateViewsForResumeViewsShow(user, callback);
+    }
+
+    viewsShowPrevPageEvent(user, msg, callback){
+        user.storage.resume.viewsShow.page--;
+        this.generateViewsForResumeViewsShow(user, callback);
+    }
+
+
     generateViewsForResumeViewsShow(user, callback){
         hh.getResumeViews({
             token: user.token.access_token,
