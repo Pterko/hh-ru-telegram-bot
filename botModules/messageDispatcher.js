@@ -115,17 +115,29 @@ class messageDispatcher {
                                     });
                             }));
                         }
-                        Promise.all(localPromises).then( () => {
-                            resolve();
+                        Promise.all(localPromises).then( (result) => {
+                            log.info("Local promises finished with result:",result);
+                            resolve("ok");
                         });
 
                     }))
                 }
             }
+            //setInterval(() =>{
+            //    log.info(promises[0]);
+            //},1000);
+
             Promise.all(promises).then( () => {
-                user.save().then( result => {
+                log.info("All promisified successfully");
+                var promise = user.save();
+                promise.then( result => {
+                    log.info("User saved");
                     this.updateLastMessageAccordingToState(msg, user);
+                }, error => {
+                    log.err("Error while saving user:",error);
                 });
+            }, error => {
+                log.err("Error while promisified last promises:",error);
             });
         } else {
             this.bot.sendMessage(msg.from.id,"Don't understand this data param");
@@ -197,12 +209,12 @@ class messageDispatcher {
 
 
         if (update == true){
-            options.chat_id = user._id;
+            options.chat_id = user.id;
             options.message_id = user.lastMessageId;
             this.bot.editMessageText(responseText,options);
         } else {
             log.info("Send message with options:",options);
-            this.bot.sendMessage(user._id, responseText, options).then((result) => {
+            this.bot.sendMessage(user.id, responseText, options).then((result) => {
                 log.info("New message sended, result:", result);
                 user.lastMessageId = parseInt(result.message_id);
                 user.markModified('lastMessageId');
@@ -270,7 +282,7 @@ class messageDispatcher {
     changeUserState(user, newState){
         return new Promise( (resolve, reject) => {
             user.state = newState;
-            log.info("User " + user._id + " state changed to " + newState);
+            log.info("User " + user.id + " state changed to " + newState);
             log.info(user);
             //now run onEnter function of new state, and only after all complete method.
             var stateObject = this.findStateByName(user.state);
@@ -350,7 +362,7 @@ class messageDispatcher {
 
     // gets User object from mongodb
     getUserObjectFromMsg(msg, callback){
-        User.findOne({_id:msg.from.id}, (err,user) => {
+        User.findOne({id:msg.from.id}, (err,user) => {
             if (err){
                 log.warn(err);
                 return callback(err);
@@ -359,7 +371,7 @@ class messageDispatcher {
             if (user == undefined && user == null){
                 log.info("Create new user");
                 var newUserObject = {
-                    _id: msg.from.id,
+                    id: msg.from.id,
                     fist_name: msg.from.fist_name,
                     last_name: msg.from.last_name,
                     username: msg.from.username,

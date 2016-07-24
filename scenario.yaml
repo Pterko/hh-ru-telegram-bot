@@ -81,7 +81,7 @@ states:
     text: "Бот забыл Вас. Лишь написав ему, он вновь узнает Вас."
   - awaitTokenState:
     name: "awaitTokenState"
-    text: "Чтобы использовать этот метод, необходимо предоставить токен. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user._id}&client_id=R6BTQ5B7130M7M5M5CV0EV2E3J0AMN21OOGG76K3SRTKH0K494GNMO2L039M2MG9&redirect_uri=http://lonelyhome.ddns.net:12000/hh_redirect_uri)"
+    text: "Чтобы использовать этот метод, необходимо предоставить токен. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user.id}&client_id=R6BTQ5B7130M7M5M5CV0EV2E3J0AMN21OOGG76K3SRTKH0K494GNMO2L039M2MG9&redirect_uri=http://lonelyhome.ddns.net:12000/hh_redirect_uri)"
     parseMode: "markdown"
     buttons:
       -

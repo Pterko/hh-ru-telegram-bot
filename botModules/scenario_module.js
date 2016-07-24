@@ -226,6 +226,7 @@ class scenarioModule {
         log.info("Index of deleted element:",resumeIndex);
         if (resumeIndex > -1) {
             user.lastTimeViews.splice(resumeIndex, 1);
+            //user.markModified('storage');
         }
         log.info("User after splice:",user);
         return {
@@ -294,7 +295,7 @@ class scenarioModule {
             //check that user have resumes and token is working
             hh.getMyResumes(user.token.access_token, (err,json) => {
                 if (err) {
-                    return bot.sendMessage(user._id, "Возникла ошибка при выполнении запроса:", err);
+                    return bot.sendMessage(user.id, "Возникла ошибка при выполнении запроса:", err);
                 }
                 let resumes  = json.items;
                 if (resumes.length == 0){
