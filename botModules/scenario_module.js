@@ -15,8 +15,10 @@ class scenarioModule {
     constructor(bot){
         this.bot = bot;
         this.handler = new scenarioHandler(bot, this);
-        this.updateResumes();
+        //this.updateResumes();
+        this.updateResumesViews();
         setInterval(this.updateResumes.bind(this), 1000*60);
+        setInterval(this.updateResumesViews.bind(this), 1000*50);
     }
 
     vacancySearchTextHandler(user, text, callback){
@@ -411,7 +413,7 @@ class scenarioModule {
                                 log.info("lastTimeUpdate updated");
                                 break;
                             default:
-                                log.error(`Unexpected result: "${result}", while updating resume ${resume} of user ${user}`)
+                                log.error(`Unexpected result: ${result} while updating resume ${resume} of user ${user}`);
                         }
                         log.info(`Work with user ${user} ended.`);
                         user.save();
@@ -434,6 +436,73 @@ class scenarioModule {
             callback(null, res);
         });
     }
+
+    updateResumesViews(finishCallback){
+        this.handler.getAllUsers( (err, users) => {
+            if (err){
+                log.err("Error while getting all users:",err);
+                return;
+            }
+            log.info("Received users array:", users);
+            var queue = asyncModule.queue(this.updateResumeViewsTaskFunction, 1);
+
+            for (let user of users){
+
+                if (user.lastTimeViews.length == 0){
+                    // useless user, don't have resume, that needed to be monitored
+                    continue;
+                }
+                queue.push({user: user}, (err, result) => {
+                    if (err){
+                        log.error("Error ", err, " while processing user ",user," and resume ",resume);
+                    }
+                    log.info(result);
+                    for (let resume of result.items){
+                        log.info("Check resume:", resume);
+                        //check what that resume in our updating list
+                        var oldResume = user.lastTimeViews.find( x => x.id == resume.id);
+                        if (oldResume == undefined){
+                            log.info(`Resume ${resume.id} don't needed to be monitored, skip it`);
+                            continue;
+                        }
+                        if (resume.new_views > oldResume.views){
+                            //send message, that we have new views
+                            oldResume.views = resume.new_views;
+
+                            user.storage.resume.selectedResumeOffset = user.storage.resume.resumes.findIndex( x => JSON.parse(x).id == resume.id );
+                            this.handler.sendFakeDataMessage("new_resume_view_incoming", user);
+                            log.info("New views detected ",resume,oldResume);
+                            //currently this function support updating olny of one resume at the same time
+                            break;
+                        } else {
+                            log.info("No new views");
+                            oldResume.views = resume.new_views;
+                        }
+
+                    }
+                    log.info(`Work of gettin resume views with user ${user} ended.`);
+                    user.save();
+                });
+
+
+
+
+            }
+        })
+    }
+
+
+    updateResumeViewsTaskFunction(task, callback){
+        hh.getMyResumes(task.user.token.access_token, (err,json) => {
+            if (err) {
+                log.warn("Received error while updating "+user.id+" resume:",err);
+                return callback(err);
+            }
+            callback(null, json);
+        });
+    }
+
+
 
 
 }
