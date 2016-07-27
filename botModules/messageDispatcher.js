@@ -391,6 +391,16 @@ class messageDispatcher {
         });
     }
 
+    getAllUsers(callback){
+        User.find({}, (err, users) => {
+            if (err){
+                log.err("Error while gettingAllUsers:", err);
+                return callback(err)
+            }
+            callback(null, users);
+        })
+    }
+
 }
 
 module.exports = messageDispatcher;
