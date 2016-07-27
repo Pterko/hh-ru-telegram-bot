@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "async": "^2.0.1",
     "express": "^4.14.0",
     "js-yaml": "^3.6.1",
     "jsonfile": "^2.2.3",
