@@ -7,11 +7,16 @@ var log = log4js.getLogger('HHTELEGRAMBOT');
 var scenarioHandler = require('./messageDispatcher.js');
 var hh = require('../hhApi');
 
+var asyncModule = require('async');
+
+
 
 class scenarioModule {
     constructor(bot){
         this.bot = bot;
         this.handler = new scenarioHandler(bot, this);
+        this.updateResumes();
+        setInterval(this.updateResumes.bind(this), 1000*60);
     }
 
     vacancySearchTextHandler(user, text, callback){
@@ -357,6 +362,79 @@ class scenarioModule {
             });
         });
     }
+
+
+    updateResumes(finishCallback){
+        this.handler.getAllUsers( (err, users) => {
+            if (err){
+                log.err("Error while getting all users:",err);
+                return;
+            }
+            log.info("Received users array:", users);
+            var queue = asyncModule.queue(this.updateResumeTaskFunction, 1);
+
+            for (let user of users){
+
+                if (user.autoUpdatedResumes.length == 0){
+                    // useless user, don't have resumes that we can update
+                    continue;
+                }
+                for (let resume of user.autoUpdatedResumes){
+                    if (resume.lastTimeUpdate){
+                        //check that 4 hours from last update elapsed
+                        if ( Date.now() - resume.lastTimeUpdate < 14400 * 1000){
+                            log.info(`Don't update resume ${resume} , because 4 hours from last update don't elapsed`);
+                            continue;
+                        }
+                    }
+                    if (resume.lastTryToUpdate){
+                        //check that 10 minutes from last attempt elapsed
+                        if ( Date.now() - resume.lastTryToUpdate < 600 * 1000){
+                            log.info(`Don't update resume ${resume}, because 10 minutes from last attempt don't elapsed`);
+                            continue;
+                        }
+                    }
+
+                    log.info("We're about to update resume ",resume," of user ",user);
+                    queue.push({user: user, resume: resume}, (err, result) => {
+                        if (err){
+                            log.error("Error ", err, " while processing user ",user," and resume ",resume);
+                        }
+                        log.info(result);
+                        switch (result){
+                            case 429:
+                                resume.lastTryToUpdate = Date.now();
+                                log.info("lastTryToUpdate updated");
+                                break;
+                            case 204:
+                                resume.lastTimeUpdate = Date.now();
+                                log.info("lastTimeUpdate updated");
+                                break;
+                            default:
+                                log.error(`Unexpected result: "${result}", while updating resume ${resume} of user ${user}`)
+                        }
+                        log.info(`Work with user ${user} ended.`);
+                        user.save();
+                    })
+
+                }
+
+            }
+        })
+    }
+
+
+    updateResumeTaskFunction(task, callback){
+        hh.updateResume(task.user.token.access_token,task.resume.id, (err,res) => {
+            if (err) {
+                log.warn("Received error while updating "+user.id+" resume:",err);
+                return callback(err);
+            }
+            log.info("Auto-updating of "+task.user.first_name+" resume "+task.resume.id+" finished with code "+res+" and error "+err);
+            callback(null, res);
+        });
+    }
+
 
 }
 

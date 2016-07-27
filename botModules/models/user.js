@@ -29,7 +29,8 @@ var userSchema = new Schema({
     autoUpdatedResumes: [
         {
             id: String,
-            lastTimeUpdate: Number
+            lastTimeUpdate: Number,
+            lastTryToUpdate: Number
         }
     ],
     storage: {
