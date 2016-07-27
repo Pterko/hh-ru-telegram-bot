@@ -52,6 +52,11 @@ class messageDispatcher {
         });
     }
 
+    sendFakeDataMessage(data, user){
+        this.callbackHandler({data: data}, user);
+    }
+
+
     // receives only inline buttons press
     callbackHandler(msg, user){
         log.warn("We're in callback handler");
@@ -132,7 +137,9 @@ class messageDispatcher {
                 var promise = user.save();
                 promise.then( result => {
                     log.info("User saved");
-                    this.updateLastMessageAccordingToState(msg, user);
+                    if ( !(dataHandler.updatePreviousMessage == false) ){
+                        this.updateLastMessageAccordingToState(msg, user);
+                    }
                 }, error => {
                     log.err("Error while saving user:",error);
                 });
@@ -213,6 +220,11 @@ class messageDispatcher {
             options.message_id = user.lastMessageId;
             this.bot.editMessageText(responseText,options);
         } else {
+            //also, we need to disable controls of previous message//
+            if (user.lastMessageId){
+                this.bot.editMessageReplyMarkup({},{chat_id: user.id, message_id: user.lastMessageId});
+            }
+
             log.info("Send message with options:",options);
             this.bot.sendMessage(user.id, responseText, options).then((result) => {
                 log.info("New message sended, result:", result);
