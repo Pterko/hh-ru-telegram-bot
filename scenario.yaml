@@ -55,7 +55,7 @@ dataHandlers:
 states:
   - start:
     name: "start"
-    text: "Hello! This is start state"
+    text: "Привет! Я - бот, который поможет тебе отслеживать изменения с твоими резюме на сайте HeadHunter. \nЧто я умею:\n• Искать вакансии по твоему запросу"
     buttons:
       -
         - {text: "Поиск вакансий", callback_data: "vac_find"}
