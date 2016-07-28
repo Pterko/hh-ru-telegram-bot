@@ -403,7 +403,7 @@ class scenarioModule {
                         }
                     }
 
-                    log.info("We're about to update resume ",resume," of user ",user);
+                    log.info(`We're about to update resume ${resume.id} of user ${user.id}`);
                     queue.push({user: user, resume: resume}, (err, result) => {
                         if (err){
                             log.error("Error ", err, " while processing user ",user," and resume ",resume);
