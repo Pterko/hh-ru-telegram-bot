@@ -2,6 +2,8 @@
 dataHandlers:
   - name: "vac_find"
     setState: "vacancyFindState"
+  - name: "settings"
+    setState: "settingMenuState"
   - name: "go_start"
     setState: "start"
   - name: "search_next_page"
@@ -136,7 +138,12 @@ states:
         - {text: "Открыть просмотры", callback_data: "resume_show_views"}
       -
         - {text: "Вернуться в начало", callback_data: "go_start"}
-
+  - settingMenuState:
+    name: "settingMenuState"
+    text: "Пока что тут нет никаких настроек :c"
+    buttons:
+      -
+        - {text: "В начало", callback_data: "go_start"}
 
 
 
