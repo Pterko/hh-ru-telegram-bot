@@ -13,12 +13,18 @@ var asyncModule = require('async');
 
 class scenarioModule {
     constructor(bot){
+        log.info("Initialize bot...");
         this.bot = bot;
         this.handler = new scenarioHandler(bot, this);
-        //this.updateResumes();
-        this.updateResumesViews();
-        setInterval(this.updateResumes.bind(this), 1000*60);
-        setInterval(this.updateResumesViews.bind(this), 1000*50);
+        this.actionsTimer();
+        setInterval(this.actionsTimer.bind(this), 1000*60);
+    }
+
+
+    actionsTimer(){
+        this.updateUserTokens();
+        setTimeout(this.updateResumes.bind(this), 1000*20);
+        setTimeout(this.updateResumesViews.bind(this), 1000*40);
     }
 
     vacancySearchTextHandler(user, text, callback){
@@ -372,7 +378,7 @@ class scenarioModule {
                 log.err("Error while getting all users:",err);
                 return;
             }
-            log.info("Received users array:", users);
+            log.info(`Received users array. We have ${users.length} users.`);
             var queue = asyncModule.queue(this.updateResumeTaskFunction, 1);
 
             for (let user of users){
@@ -385,14 +391,14 @@ class scenarioModule {
                     if (resume.lastTimeUpdate){
                         //check that 4 hours from last update elapsed
                         if ( Date.now() - resume.lastTimeUpdate < 14400 * 1000){
-                            log.info(`Don't update resume ${resume} , because 4 hours from last update don't elapsed`);
+                            log.info(`Don't update resume ${resume.id} , because 4 hours from last update don't elapsed`);
                             continue;
                         }
                     }
                     if (resume.lastTryToUpdate){
                         //check that 10 minutes from last attempt elapsed
                         if ( Date.now() - resume.lastTryToUpdate < 600 * 1000){
-                            log.info(`Don't update resume ${resume}, because 10 minutes from last attempt don't elapsed`);
+                            log.info(`Don't update resume ${resume.id}, because 10 minutes from last attempt don't elapsed`);
                             continue;
                         }
                     }
@@ -443,7 +449,7 @@ class scenarioModule {
                 log.err("Error while getting all users:",err);
                 return;
             }
-            log.info("Received users array:", users);
+            log.info(`Received users array. We have ${users.length} users.`);
             var queue = asyncModule.queue(this.updateResumeViewsTaskFunction, 1);
 
             for (let user of users){
@@ -456,9 +462,9 @@ class scenarioModule {
                     if (err){
                         log.error("Error ", err, " while processing user ",user," and resume ",resume);
                     }
-                    log.info(result);
+                    log.info(`Received result from hhApi: ${result}`);
                     for (let resume of result.items){
-                        log.info("Check resume:", resume);
+                        log.info(`Check resume ${resume.id}`);
                         //check what that resume in our updating list
                         var oldResume = user.lastTimeViews.find( x => x.id == resume.id);
                         if (oldResume == undefined){
@@ -471,16 +477,16 @@ class scenarioModule {
 
                             user.storage.resume.selectedResumeOffset = user.storage.resume.resumes.findIndex( x => JSON.parse(x).id == resume.id );
                             this.handler.sendFakeDataMessage("new_resume_view_incoming", user);
-                            log.info("New views detected ",resume,oldResume);
+                            log.info(`New views detected on resume ${resume.id}`);
                             //currently this function support updating olny of one resume at the same time
                             break;
                         } else {
-                            log.info("No new views");
+                            log.info(`No new views detected on resume ${resume.id}`);
                             oldResume.views = resume.new_views;
                         }
 
                     }
-                    log.info(`Work of gettin resume views with user ${user} ended.`);
+                    log.info(`Work of gettin resume views with user ${user.id} ended.`);
                     user.save();
                 });
 
@@ -500,6 +506,56 @@ class scenarioModule {
             }
             callback(null, json);
         });
+    }
+
+    updateUserTokens(finishCallback){
+        this.handler.getAllUsers( (err, users) => {
+            if (err){
+                log.err("Error while getting all users:",err);
+                return;
+            }
+            log.info(`Received users array. We have ${users.length} users.`);
+            var queue = asyncModule.queue(this.updateUserTokensTaskFunction, 1);
+
+            for (let user of users){
+
+                if (user.token.access_token == undefined || user.token.access_token == null){
+                    // useless user, don't have resume, that needed to be monitored
+                    log.info(`User ${user.id} doesn't have a token, ignore it`);
+                    continue;
+                }
+
+                if ( user.token.expires_at > Math.ceil(Date.now() / 1000) ) {
+                    log.info(`User ${user.id} don't look like expired`);
+                    continue;
+                }
+
+                queue.push({user: user}, (err, json) => {
+                    if (err){
+                        return log.error("Error ", err, " while processing user ",user);
+                    }
+                    log.info(json);
+                    user.token = json;
+                    //user.token.expires_at = Date.now() + parseInt(user.token.expires_in);
+                    user.token.expires_at = Math.round(Date.now()/1000) + parseInt(json.expires_in);
+                    log.warn(user);
+                    user.markModified('token');
+                    log.info(`Work of updating token with user ${user} ended.`);
+                    user.save();
+                });
+            }
+        })
+    }
+
+
+    updateUserTokensTaskFunction(task, callback){
+        hh.updateToken(task.user.token.access_token, task.user.token.refresh_token, function (err, json) {
+            if (err) {
+                log.error("Received error while updating "+task.user.id+" resume:",err);
+                return callback(err);
+            }
+            callback(null, json);
+        })
     }
 
 
