@@ -170,7 +170,7 @@ class scenarioModule {
             for(let view of json.items){
                 viewsStr += view.created_at + " | ";
 
-                viewsStr += `[${view.employer.name}](${view.employer.url})`;
+                viewsStr += `[${view.employer.name}](${view.employer.alternate_url})`;
 
                 viewsStr += "\n";
 
