@@ -61,7 +61,7 @@ class scenarioModule {
             let resume = JSON.parse(user.storage.resume.resumes[i]);
             buttonsArray.push([{text: `№${i+1} - ${resume.title}`, callback_data: `select_resume_${i}`}]);
         }
-
+        buttonsArray.push([{text:"В начало", callback_data:"go_start"}]);
         log.info("Buttons line generated:",buttonsArray);
         return buttonsArray;
     }
