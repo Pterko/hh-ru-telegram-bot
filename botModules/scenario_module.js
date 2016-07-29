@@ -435,7 +435,7 @@ class scenarioModule {
     updateResumeTaskFunction(task, callback){
         hh.updateResume(task.user.token.access_token,task.resume.id, (err,res) => {
             if (err) {
-                log.warn("Received error while updating "+user.id+" resume:",err);
+                log.warn("Received error while updating "+task.user.id+" resume:",err);
                 return callback(err);
             }
             log.info("Auto-updating of "+task.user.first_name+" resume "+task.resume.id+" finished with code "+res+" and error "+err);
@@ -501,7 +501,7 @@ class scenarioModule {
     updateResumeViewsTaskFunction(task, callback){
         hh.getMyResumes(task.user.token.access_token, (err,json) => {
             if (err) {
-                log.warn("Received error while updating "+user.id+" resume:",err);
+                log.warn("Received error while updating "+task.user.id+" resume:",err);
                 return callback(err);
             }
             callback(null, json);
