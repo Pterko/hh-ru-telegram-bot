@@ -273,7 +273,7 @@ class scenarioModule {
             //now we need to generate String-list for message
             var vacancyStr = "";
             for(let vacancy of json.items){
-                vacancyStr += "[" + vacancy.name + "]()" + vacancy.alternate_url +  " )| ";
+                vacancyStr += "[" + vacancy.name + "](" + vacancy.alternate_url +  " )| ";
                 if (vacancy.salary != null){
                     if (vacancy.salary.from != null){
                         vacancyStr += " от " + vacancy.salary.from + vacancy.salary.currency;
