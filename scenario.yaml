@@ -77,6 +77,7 @@ states:
   - vacancySearchState:
     name: "vacancySearchState"
     text: "По вашему запросу найдено ${user.storage.search.found} вакансий. Показана страница ${user.storage.search.page + 1} из ${user.storage.search.pages}. \n \n  ${user.storage.search.vacancyStr}"
+    parseMode: "markdown"
     textExpected: false
     onEnterHandlerFunction: prepareSearchInfo
     onEnterHandlerFunctionAsync: true

@@ -273,7 +273,7 @@ class scenarioModule {
             //now we need to generate String-list for message
             var vacancyStr = "";
             for(let vacancy of json.items){
-                vacancyStr += vacancy.name + " | ";
+                vacancyStr += "[" + vacancy.name + "]()" + vacancy.alternate_url +  " )| ";
                 if (vacancy.salary != null){
                     if (vacancy.salary.from != null){
                         vacancyStr += " от " + vacancy.salary.from + vacancy.salary.currency;
@@ -293,7 +293,7 @@ class scenarioModule {
                 vacancyStr += "\n";
 
             }
-            vacancyStr = vacancyStr.replace(new RegExp('<highlighttext>', 'g'),'<b>').replace(new RegExp('</highlighttext>', 'g'),'</b>');
+            vacancyStr = vacancyStr.replace(new RegExp('<highlighttext>', 'g'),'*').replace(new RegExp('</highlighttext>', 'g'),'*');
             user.storage.search.vacancyStr = vacancyStr;
             log.info("Prepared vacancyStr, user looks now like: ",user);
             callback(user, undefined);
