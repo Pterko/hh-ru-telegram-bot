@@ -460,7 +460,7 @@ class scenarioModule {
                 }
                 queue.push({user: user}, (err, result) => {
                     if (err){
-                        log.error("Error ", err, " while processing user ",user," and resume ",resume);
+                        log.error("Error ", err, " while processing user ", user );
                     }
                     log.info(`Received result from hhApi: ${result}`);
                     for (let resume of result.items){
