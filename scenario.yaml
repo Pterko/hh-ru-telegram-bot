@@ -92,7 +92,7 @@ states:
         - {text: "Нет", callback_data: "go_start"}
   - forgottenState:
     name: "forgottenState"
-    text: "Бот забыл Вас. Лишь написав ему, он вновь узнает Вас."
+    text: "Все функции обновления и мониторинга отключены. Бот забыл Вас. Лишь написав ему вновь, вы напомните о себе."
   - awaitTokenState:
     name: "awaitTokenState"
     text: "Чтобы использовать этот метод, необходимо предоставить токен. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user.id}&client_id=R6BTQ5B7130M7M5M5CV0EV2E3J0AMN21OOGG76K3SRTKH0K494GNMO2L039M2MG9&redirect_uri=http://hhbot.pterko.ru:12000/hh_redirect_uri)"
