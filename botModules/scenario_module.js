@@ -17,14 +17,14 @@ class scenarioModule {
         this.bot = bot;
         this.handler = new scenarioHandler(bot, this);
         this.actionsTimer();
-        setInterval(this.actionsTimer.bind(this), 1000*60);
+        setInterval(this.actionsTimer.bind(this), 1000*120);
     }
 
 
     actionsTimer(){
         this.updateUserTokens();
-        setTimeout(this.updateResumes.bind(this), 1000*20);
-        setTimeout(this.updateResumesViews.bind(this), 1000*40);
+        setTimeout(this.updateResumes.bind(this), 1000*40);
+        setTimeout(this.updateResumesViews.bind(this), 1000*80);
     }
 
     vacancySearchTextHandler(user, text, callback){
