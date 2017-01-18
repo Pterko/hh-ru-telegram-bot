@@ -461,8 +461,11 @@ class scenarioModule {
                 queue.push({user: user}, (err, result) => {
                     if (err){
                         log.error("Error ", err, " while processing user ", user );
+                        return;
                     }
                     log.info(`Received result from hhApi: ${result}`);
+                    if (!result) return;
+
                     for (let resume of result.items){
                         log.info(`Check resume ${resume.id}`);
                         //check what that resume in our updating list
