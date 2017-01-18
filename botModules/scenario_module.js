@@ -168,7 +168,10 @@ class scenarioModule {
             log.info(json);
             var viewsStr = "";
             for(let view of json.items){
-                viewsStr += view.created_at + " | ";
+                let dat_norm = new Date(view.created_at);
+                var options = { year: 'numeric', month: 'numeric', day: 'numeric', hour12:false, hour:'numeric', minute:'numeric', second:'numeric'  };
+
+                viewsStr += dat_norm.toLocaleString('ru-RU', options) + " | ";
 
                 viewsStr += `[${view.employer.name}](${view.employer.alternate_url})`;
 
