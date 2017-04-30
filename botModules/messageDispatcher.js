@@ -260,7 +260,7 @@ class messageDispatcher {
             var dbmes = new Message();
             dbmes.userid = msg.from.id;
             dbmes.text = msg.text;
-            dbmes.date = new Date().toISOString();
+            dbmes.date = (new Date()).toISOString();
             dbmes.object = msg;
 
 
