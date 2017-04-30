@@ -262,7 +262,13 @@ class messageDispatcher {
                 date: new Date().toISOString(),
                 object: msg
             })
-            dbmes.save();
+            dbmes.save()
+            .then((db) =>{
+                log.info("Message saved in db:", db);
+            })
+            .catch((err) => {
+                log.error("Error while saving message in db:", err)
+            })
         }
 
         if(stateObject.textExpected){
