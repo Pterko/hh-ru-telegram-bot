@@ -70,10 +70,10 @@ states:
       -
         - {text: "Настройки", callback_data: "settings"}
         - {text: "Забыть меня", callback_data: "forget_me"}
-      -
-        - {text: "Управление отслеживанием вакансий", callback_data: "vacancy_watch_menu"}
-      -
-        - {text: "Тестовое меню", callback_data: "test_menu"}
+    # -
+    #    - {text: "Управление отслеживанием вакансий", callback_data: "vacancy_watch_menu"}
+    #  -
+    #    - {text: "Тестовое меню", callback_data: "test_menu"}
   - vacancyWatchMenuState:
     name: "vacancyWatchMenuState"
     text: "Текущие отслеживания вакансий:"
