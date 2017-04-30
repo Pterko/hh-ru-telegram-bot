@@ -255,6 +255,7 @@ class messageDispatcher {
         log.warn("We're in dispatcher!!11");
         var stateObject = this.findStateByName(user.state);
         log.info("StateObject: ",stateObject);
+        log.info("Msg text: ",msg.text)
         if (msg.text){
             var dbmes = new Message({
                 userid: msg.from.id,
