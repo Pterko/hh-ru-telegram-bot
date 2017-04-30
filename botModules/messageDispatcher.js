@@ -258,13 +258,12 @@ class messageDispatcher {
         log.info("Msg text: ",msg.text)
         if (msg.text){
             var dbmes = new Message();
-            dbmes = {
-                userid: msg.from.id,
-                text: msg.text,
-                date: new Date().toISOString(),
-                object: msg
-            };
-            
+            dbmes.userid = msg.from.id;
+            dbmes.text = msg.text;
+            dbmes.date = new Date().toISOString();
+            dbmes.object = msg;
+
+
             dbmes.save()
             .then((db) =>{
                 log.info("Message saved in db:", db);
