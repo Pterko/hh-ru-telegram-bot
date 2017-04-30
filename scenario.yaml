@@ -46,7 +46,12 @@ dataHandlers:
   - name: "resume_views_next_page"
     handlerFunction: "viewsShowNextPageEvent"
     handlerFunctionAsync: true
-
+  - name: "vacancy_watch_menu"
+    setState: "vacancyWatchMenuState"
+  - name: "test_menu"
+    setState: "analyticsState"
+  - name: "resume_analytics"
+    setState: "analyticsState"
   # fake data handlers for scenario-calls
   - name: "new_resume_view_incoming"
     setState: "newResumeMessageState"
@@ -65,6 +70,27 @@ states:
       -
         - {text: "Настройки", callback_data: "settings"}
         - {text: "Забыть меня", callback_data: "forget_me"}
+      -
+        - {text: "Управление отслеживанием вакансий", callback_data: "vacancy_watch_menu"}
+      -
+        - {text: "Тестовое меню", callback_data: "test_menu"}
+  - vacancyWatchMenuState:
+    name: "vacancyWatchMenuState"
+    text: "Текущие отслеживания вакансий:"
+    inlineButtonsGenerator: "vacancyWatchMenuButtonsGenerator"
+  - newVacancyAvailableState:
+    name: "newVacancyAvailableState"
+    text: "Была добавлена новая вакансия, удовлетворяющая вашему запросу. \n Название вакансии: \"PHP-программист (Backend)\"\n\nhttps://hh.ru/vacancy/20071933"
+    buttons: 
+      -
+        - {text: "В главное меню", callback_data: "go_start"}
+  - analyticsState:
+    name: "analyticsState"
+    text: "Количество просмотров Вашего резюме за прошлую неделю: *${user.analytics.last_week_views}* \nВаше резюме просматривают *${user.analytics.comparison_word}*, чем *${user.analytics.comarison_percent}* других резюме."
+    parseMode: "markdown"
+    buttons: 
+      -
+        - {text: "Вернуться к резюме", callback_data: "go_specific_resume_menu"}
   - vacancyFindState:
     name: "vacancyFindState"
     text: "Введите запрос для поиска, либо выберите один из предыдущих запросов списка ниже."
@@ -95,7 +121,7 @@ states:
     text: "Все функции обновления и мониторинга отключены. Бот забыл Вас. Лишь написав ему вновь, вы напомните о себе."
   - awaitTokenState:
     name: "awaitTokenState"
-    text: "Чтобы использовать этот метод, необходимо предоставить токен. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user.id}&client_id=R6BTQ5B7130M7M5M5CV0EV2E3J0AMN21OOGG76K3SRTKH0K494GNMO2L039M2MG9&redirect_uri=http://hhbot.pterko.ru:12000/hh_redirect_uri)"
+    text: "Чтобы использовать этот метод, необходимо предоставить токен. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user.id}&client_id=R6BTQ5B7130M7M5M5CV0EV2E3J0AMN21OOGG76K3SRTKH0K494GNMO2L039M2MG9&redirect_uri=http://localhost:12000/hh_redirect_uri)"
     parseMode: "markdown"
     buttons:
       -

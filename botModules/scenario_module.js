@@ -54,6 +54,18 @@ class scenarioModule {
         return [buttonsArrayLine];
     }
 
+    vacancyWatchMenuButtonsGenerator(user){
+        let buttonsArray = [];
+        buttonsArray.push([{text: "Добавить запрос для отслеживания", callback_data: "vacancy_watch_add_request"}]);
+
+        buttonsArray.push([{text: "Запрос: \"php программист\"", callback_data: "123test"}]);
+
+        buttonsArray.push([{text: "В главное меню", callback_data: "go_start"}]);
+
+        log.info("Buttons line generated:",buttonsArray);
+        return buttonsArray;
+    }
+
 
     resumeSelectButtonsGenerator(user){
         let buttonsArray = [];
@@ -84,6 +96,7 @@ class scenarioModule {
 
         buttonsArray.push([{text:"Обновить резюме", callback_data:"resume_update"}]);
         buttonsArray.push([{text:"Увидеть просмотры резюме", callback_data:"resume_show_views"}]);
+        buttonsArray.push([{text: "Аналитика резюме", callback_data: "resume_analytics"}])
         buttonsArray.push([{text:"Вернуться в начало", callback_data:"go_start"}]);
 
 
@@ -378,7 +391,7 @@ class scenarioModule {
     updateResumes(finishCallback){
         this.handler.getAllUsers( (err, users) => {
             if (err){
-                log.err("Error while getting all users:",err);
+                log.error("Error while getting all users:",err);
                 return;
             }
             log.info(`Received users array. We have ${users.length} users.`);

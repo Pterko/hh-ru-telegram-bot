@@ -12,15 +12,24 @@ var mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/hhTelegramBot');
 var User = require("./models/user");
+var Message = require('./models/message');
 
 
 class messageDispatcher {
     constructor(bot, scenarioHandler){
         this.bot = bot;
         this.scenarioHandler = scenarioHandler;
-        var str = fs.readFileSync("./scenario.yaml",{encoding: "utf-8"});
+        var str;
+        try{
+            str = fs.readFileSync("./scenario.yaml",{encoding: "utf-8"});
+            this.scenario = YAML.safeLoad(str);
+        } catch(ex){
+            log.error('Error here');
+            log.error(ex.message);
+            process.exit(1337);
+        }
         //console.log(str);
-        this.scenario = YAML.safeLoad(str);
+        
         //log.info("Loaded scenario:", this.scenario );
         log.info("Loaded scenario:", JSON.stringify(this.scenario) );
 
@@ -92,7 +101,7 @@ class messageDispatcher {
                                             log.info("CallbackQuery result: ",result);
                                             localResolve();
                                         }, error =>{
-                                            log.err("CallbackQuery error: ",error);
+                                            log.error("CallbackQuery error: ",error);
 
                                         });
                                 }));
@@ -141,10 +150,10 @@ class messageDispatcher {
                         this.updateLastMessageAccordingToState(msg, user);
                     }
                 }, error => {
-                    log.err("Error while saving user:",error);
+                    log.error("Error while saving user:",error);
                 });
             }, error => {
-                log.err("Error while promisified last promises:",error);
+                log.error("Error while promisified last promises:",error);
             });
         } else {
             this.bot.sendMessage(msg.from.id,"Don't understand this data param");
@@ -246,6 +255,16 @@ class messageDispatcher {
         log.warn("We're in dispatcher!!11");
         var stateObject = this.findStateByName(user.state);
         log.info("StateObject: ",stateObject);
+        if (msg.text){
+            var dbmes = new Message({
+                userid: msg.from.id,
+                text: msg.text,
+                date: new Date().toISOString(),
+                object: msg
+            })
+            dbmes.save();
+        }
+
         if(stateObject.textExpected){
             //accept text and check, that function-handler exists
             if(stateObject.textHandlerFunction != "undefined" && typeof this.scenarioHandler[stateObject.textHandlerFunction] === "function"){
@@ -406,7 +425,7 @@ class messageDispatcher {
     getAllUsers(callback){
         User.find({}, (err, users) => {
             if (err){
-                log.err("Error while gettingAllUsers:", err);
+                log.error("Error while gettingAllUsers:", err);
                 return callback(err)
             }
             callback(null, users);
