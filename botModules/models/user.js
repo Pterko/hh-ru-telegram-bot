@@ -6,6 +6,8 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+mongoose.Promise = global.Promise;
+
 var userSchema = new Schema({
     id:  Number,
     lastMessageId: Number,
@@ -43,6 +45,12 @@ var userSchema = new Schema({
         },
         resume: {
             resumes: [String], // each element: resume
+            resume_views: [{
+                resume_id: String,
+                views: [
+                    {}
+                ]
+            }],
             selectedResumeOffset: Number,
             viewsShow: {
                 pages: Number,
@@ -56,6 +64,6 @@ var userSchema = new Schema({
 });
 
 
-var User = mongoose.model('User',userSchema);
+var User = mongoose.model('User', userSchema);
 
 module.exports = User;
