@@ -143,7 +143,9 @@ async function proceed(){
 
   } catch(ex){
     log.info(ex);
+
   }
+  proceed();
 }
 
 log.info("Starting...");
