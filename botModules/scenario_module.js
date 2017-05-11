@@ -16,7 +16,7 @@ class scenarioModule {
         log.info("Initialize bot...");
         this.bot = bot;
         this.handler = new scenarioHandler(bot, this);
-        this.actionsTimer();
+        //this.actionsTimer();
         setInterval(this.actionsTimer.bind(this), 1000*120);
     }
 
@@ -358,6 +358,9 @@ class scenarioModule {
         // get id of current resume
         let current_resume_id = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
         let analytics = user.storage.resume.resume_analytics.find(x => x.resume_id == current_resume_id)
+        if (!analytics){
+            return { setState: "analyticsNotReadyState" };
+        }
         user.storage.analytics = analytics.toObject();
 
         if (!user.storage.analytics || !user.storage.analytics.comparison_percent){
