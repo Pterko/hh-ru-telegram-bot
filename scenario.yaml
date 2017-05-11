@@ -51,9 +51,9 @@ dataHandlers:
   - name: "test_menu"
     setState: "analyticsState"
   - name: "resume_analytics"
-    #handlerFunction: "resumeAnalyticsHandle"
+    handlerFunction: "resumeAnalyticsHandler"
     #handlerFunctionAsync: true
-    setState: "analyticsState"
+    #setState: "analyticsState"
   # fake data handlers for scenario-calls
   - name: "new_resume_view_incoming"
     setState: "newResumeMessageState"
@@ -88,7 +88,15 @@ states:
         - {text: "В главное меню", callback_data: "go_start"}
   - analyticsState:
     name: "analyticsState"
-    text: "Количество просмотров Вашего резюме за прошлую неделю: *${user.analytics.last_week_views}* \nВаше резюме просматривают *${user.analytics.comparison_word}*, чем *${user.analytics.comarison_percent}* других резюме."
+    text: "Количество просмотров Вашего резюме за прошлую неделю: *${user.storage.analytics.last_week_views}* \nВаше резюме просматривают *${user.storage.analytics.comparison_word}*, чем *${user.storage.analytics.comparison_percent}%* других резюме."
+    parseMode: "markdown"
+    buttons: 
+      -
+        - {text: "Вернуться к резюме", callback_data: "go_specific_resume_menu"}
+
+  - analyticsNotReadyState:
+    name: "analyticsNotReadyState"
+    text: "Аналитика Вашего резюме ещё не готова. Пожалуйста, попробуйте позднее."
     parseMode: "markdown"
     buttons: 
       -

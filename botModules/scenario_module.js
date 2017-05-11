@@ -96,7 +96,7 @@ class scenarioModule {
 
         buttonsArray.push([{text:"Обновить резюме", callback_data:"resume_update"}]);
         buttonsArray.push([{text:"Увидеть просмотры резюме", callback_data:"resume_show_views"}]);
-        //buttonsArray.push([{text: "Аналитика резюме", callback_data: "resume_analytics"}])
+        buttonsArray.push([{text: "Аналитика резюме", callback_data: "resume_analytics"}])
         buttonsArray.push([{text:"Вернуться в начало", callback_data:"go_start"}]);
 
 
@@ -354,7 +354,25 @@ class scenarioModule {
         }
     }
 
-    resumeAnalyticsHandle(user, msg, callback){
+    resumeAnalyticsHandler(user, msg){
+        // get id of current resume
+        let current_resume_id = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
+        let analytics = user.storage.resume.resume_analytics.find(x => x.resume_id == current_resume_id)
+        user.storage.analytics = analytics.toObject();
+
+        if (!user.storage.analytics || !user.storage.analytics.comparison_percent){
+            return { setState: "analyticsNotReadyState" };
+        }
+
+        if (user.storage.analytics.comparison_percent >= 50){
+            user.storage.analytics.comparison_word = "чаще"
+        } else {
+            user.storage.analytics.comparison_word = "реже";
+            log.info("Before comparison_percent: ", user.storage.analytics.comparison_percent)
+            user.storage.analytics.comparison_percent = 100 - parseInt(user.storage.analytics.comparison_percent);
+            log.info("Modified comparison_percent: ", user.storage.analytics.comparison_percent)
+        }
+        return { setState: "analyticsState" };
         // set state analyticsState
     }
 

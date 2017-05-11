@@ -43,7 +43,7 @@ var userSchema = new Schema({
         },
         analytics: {
             last_week_views: Number,
-            comarison_percent: Number,
+            comparison_percent: Number,
             comparison_word: String
         },
         resume: {
@@ -58,7 +58,7 @@ var userSchema = new Schema({
             resume_analytics: [{
                 resume_id: String,
                 last_week_views: Number,
-                comarison_percent: Number,
+                comparison_percent: Number,
                 comparison_word: String
             }],
             selectedResumeOffset: Number,

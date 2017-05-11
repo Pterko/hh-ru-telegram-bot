@@ -124,7 +124,7 @@ async function proceed(){
             }
             log.info("Iterator:", i)
             let percent = Math.ceil((i / difference_array.length) *100);
-            analitycs.comarison_percent = percent;
+            analitycs.comparison_percent = percent;
           }
 
 
