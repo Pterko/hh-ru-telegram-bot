@@ -51,6 +51,8 @@ dataHandlers:
   - name: "test_menu"
     setState: "analyticsState"
   - name: "resume_analytics"
+    #handlerFunction: "resumeAnalyticsHandle"
+    #handlerFunctionAsync: true
     setState: "analyticsState"
   # fake data handlers for scenario-calls
   - name: "new_resume_view_incoming"
@@ -121,7 +123,7 @@ states:
     text: "Все функции обновления и мониторинга отключены. Бот забыл Вас. Лишь написав ему вновь, вы напомните о себе."
   - awaitTokenState:
     name: "awaitTokenState"
-    text: "Чтобы использовать этот метод, необходимо предоставить токен. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user.id}&client_id=R6BTQ5B7130M7M5M5CV0EV2E3J0AMN21OOGG76K3SRTKH0K494GNMO2L039M2MG9&redirect_uri=http://hhbot.pterko.ru:12000/hh_redirect_uri)"
+    text: "Чтобы использовать этот метод, необходимо предоставить токен. Передавая токен, Вы соглашаетесь на передачу своих персональных данных. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user.id}&client_id=R6BTQ5B7130M7M5M5CV0EV2E3J0AMN21OOGG76K3SRTKH0K494GNMO2L039M2MG9&redirect_uri=http://hhbot.pterko.ru:12000/hh_redirect_uri)"
     parseMode: "markdown"
     buttons:
       -

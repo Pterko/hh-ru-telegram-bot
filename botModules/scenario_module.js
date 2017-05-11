@@ -354,6 +354,10 @@ class scenarioModule {
         }
     }
 
+    resumeAnalyticsHandle(user, msg, callback){
+        // set state analyticsState
+    }
+
     handleResumeSelect(user, msg){
         log.info("I'M INTO HANDLE RESUME SELECT");
         if (msg.value){
@@ -386,6 +390,8 @@ class scenarioModule {
             });
         });
     }
+
+
 
 
     updateResumes(finishCallback){

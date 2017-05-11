@@ -77,7 +77,7 @@ module.exports.updateResume = function(token,resume_id,callback){
     })
 };
 
-function getMyResumes(token,callback){
+function getMyResumes(token, callback){
     request.get({
         url : 'https://api.hh.ru/resumes/mine?per_page=10000',
         headers: {
@@ -87,6 +87,7 @@ function getMyResumes(token,callback){
     },function(err,res,body){
         handleAnswer(err,res,body,callback);
     })
+
 };
 
 module.exports.getMyResumes = getMyResumes;
@@ -122,7 +123,7 @@ module.exports.getAccessTokenByCode = function(code,callback){
 
 function handleAnswer(err,res,body,callback){
     if (err) {callback(err); return;}
-    console.log(body);
+    //console.log(body);
     var json = JSON.parse(body);
     if (json.error || json.errors) {callback((json)); return;}
     callback(null,json);

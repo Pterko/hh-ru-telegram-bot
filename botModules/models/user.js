@@ -6,8 +6,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-mongoose.Promise = global.Promise;
-
 var userSchema = new Schema({
     id:  Number,
     lastMessageId: Number,
@@ -43,13 +41,25 @@ var userSchema = new Schema({
             found: Number,
             vacancyStr: String
         },
+        analytics: {
+            last_week_views: Number,
+            comarison_percent: Number,
+            comparison_word: String
+        },
         resume: {
             resumes: [String], // each element: resume
+            resumes_json: [{}],
             resume_views: [{
                 resume_id: String,
                 views: [
                     {}
                 ]
+            }],
+            resume_analytics: [{
+                resume_id: String,
+                last_week_views: Number,
+                comarison_percent: Number,
+                comparison_word: String
             }],
             selectedResumeOffset: Number,
             viewsShow: {
