@@ -294,7 +294,12 @@ class messageDispatcher {
                 })
             };
             //TODO: think about removing eval
-            var responseText = eval('`'+stateObject.text+'`');
+            var responseText
+            try{
+                responseText = eval('`'+stateObject.text+'`');
+            } catch(ex){
+                responseText = "Возникла внутренняя ошибка при генерации текста сообщения. Приносим свои извинения, попробуйте вернуться в главное меню."
+            }
             this.emitMessage(user,responseText,options,false);
         }
     }
