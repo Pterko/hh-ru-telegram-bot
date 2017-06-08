@@ -27,6 +27,8 @@ var scenario = new scenarioModule(bot);
 var express = require('express');
 var app = express();
 
+app.use(express.static('public'));
+
 app.get('/hh_redirect_uri', function (req, res) {
     if(req.query.code){
         scenario.acceptCode(req.query.code, req.query.state);
