@@ -335,7 +335,11 @@ class scenarioModule {
             //check that user have resumes and token is working
             hh.getMyResumes(user.token.access_token, (err,json) => {
                 if (err) {
-                    return bot.sendMessage(user.id, "Возникла ошибка при выполнении запроса:", err);
+                    //return bot.sendMessage(user.id, "Возникла ошибка при выполнении запроса:", err);
+                    log.error("Возникла ошибка при выполнении запроса(resumeManageSelect):", err);
+                    return callback({
+                        showAlert: "Возникла ошибка при выполнении запроса:" + err
+                    })
                 }
                 let resumes  = json.items;
                 if (resumes.length == 0){
