@@ -1,6 +1,6 @@
 var mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/hhbot');
+mongoose.connect('mongodb://localhost/hhTelegramBot');
 var User = require("./../botModules/models/user");
 var Message = require('./../botModules/models/message');
 
