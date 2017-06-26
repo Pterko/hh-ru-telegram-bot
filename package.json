@@ -5,6 +5,7 @@
   "dependencies": {
     "async": "^2.0.1",
     "express": "^4.14.0",
+    "express-handlebars": "^3.0.0",
     "js-yaml": "^3.6.1",
     "jsonfile": "^2.2.3",
     "log4js": "^0.6.33",

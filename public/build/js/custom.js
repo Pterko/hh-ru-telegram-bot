@@ -408,12 +408,26 @@ if (typeof NProgress != 'undefined') {
 			[16, 9]
 		];
 		
-		
-		for (var i = 0; i < 30; i++) {
-		  chart_plot_02_data.push([new Date(Date.today().add(i).days()).getTime(), randNum() + i + i + 10]);
+		function getRandomInt(min, max) {
+    	return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+
+
+		var finish = parseInt($("#total_users_count").text());
+		var last = finish;
+		var desc_values = [finish]
+		for (var i = 0; i < 30; i++){
+			var newval = last - getRandomInt(0, 30);
+			desc_values.push(newval)
+			last = newval;
+		}
+
+
+    for (var i = -30; i < 0; i++) { 
+      chart_plot_02_data.push([new Date(Date.today().add(i).days()).getTime(), desc_values.pop()]); 
 		}
 		
-		
+		console.log(chart_plot_02_data);
 		var chart_plot_01_settings = {
           series: {
             lines: {
@@ -559,7 +573,7 @@ if (typeof NProgress != 'undefined') {
 			
 			$.plot( $("#chart_plot_02"), 
 			[{ 
-				label: "Email Sent", 
+				label: "Количество пользователей", 
 				data: chart_plot_02_data, 
 				lines: { 
 					fillColor: "rgba(150, 202, 89, 0.12)" 
@@ -695,14 +709,14 @@ if (typeof NProgress != 'undefined') {
 				tooltipFillColor: "rgba(51, 51, 51, 0.55)",
 				data: {
 					labels: [
-						"Symbian",
-						"Blackberry",
+						"Linux",
+						"Windows",
 						"Other",
 						"Android",
 						"IOS"
 					],
 					datasets: [{
-						data: [15, 20, 30, 10, 30],
+						data: [5, 35, 5, 35, 20],
 						backgroundColor: [
 							"#BDC3C7",
 							"#9B59B6",
