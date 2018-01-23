@@ -192,6 +192,7 @@ class messageDispatcher {
     //}
 
     emitMessage(user,text,options,update){
+        try{
         var stateObject = this.findStateByName(user.state);
         log.info("Entered in emitMessage func, state:",stateObject);
 
@@ -246,6 +247,9 @@ class messageDispatcher {
                 });
                 log.info(user);
             });
+        }
+        } catch(ex){
+            
         }
     }
 
