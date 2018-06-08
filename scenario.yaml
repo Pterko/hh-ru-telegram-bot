@@ -1,4 +1,3 @@
-
 dataHandlers:
   - name: "vac_find"
     setState: "vacancyFindState"
@@ -59,19 +58,15 @@ dataHandlers:
     setState: "newResumeMessageState"
     updatePreviousMessage: false
 
-
-
 states:
   - start:
     name: "start"
     text: "Привет! Я - бот, который поможет тебе отслеживать изменения с твоими резюме на сайте HeadHunter. \nЧто я умею:\n• Искать вакансии по твоему запросу\n• Уведомлять тебя о новых просмотрах твоих резюме\n• Обновлять твои резюме автоматически, каждые 4 часа\n• Помогать тебе удобно просматривать список просмотров твоих резюме\n\nИ да, в случае чего, можешь писать моему создателю - @Pterko , он поможет тебе поладить со мной, а также может добавить мне новые функции."
     buttons:
-      -
-        - {text: "Поиск вакансий", callback_data: "vac_find"}
-        - {text: "Управление резюме", callback_data: "resume_manage"}
-      -
-        - {text: "Настройки", callback_data: "settings"}
-        - {text: "Забыть меня", callback_data: "forget_me"}
+      - - { text: "Поиск вакансий", callback_data: "vac_find" }
+        - { text: "Управление резюме", callback_data: "resume_manage" }
+      - - { text: "Настройки", callback_data: "settings" }
+        - { text: "Забыть меня", callback_data: "forget_me" }
     # -
     #    - {text: "Управление отслеживанием вакансий", callback_data: "vacancy_watch_menu"}
     #  -
@@ -83,24 +78,27 @@ states:
   - newVacancyAvailableState:
     name: "newVacancyAvailableState"
     text: "Была добавлена новая вакансия, удовлетворяющая вашему запросу. \n Название вакансии: \"PHP-программист (Backend)\"\n\nhttps://hh.ru/vacancy/20071933"
-    buttons: 
-      -
-        - {text: "В главное меню", callback_data: "go_start"}
+    buttons:
+      - - { text: "В главное меню", callback_data: "go_start" }
   - analyticsState:
     name: "analyticsState"
     text: "Количество просмотров Вашего резюме за прошлую неделю: *${user.storage.analytics.last_week_views}* \nВаше резюме просматривают *${user.storage.analytics.comparison_word}*, чем *${user.storage.analytics.comparison_percent}%* других резюме."
     parseMode: "markdown"
-    buttons: 
-      -
-        - {text: "Вернуться к резюме", callback_data: "go_specific_resume_menu"}
+    buttons:
+      - - {
+            text: "Вернуться к резюме",
+            callback_data: "go_specific_resume_menu",
+          }
 
   - analyticsNotReadyState:
     name: "analyticsNotReadyState"
     text: "Аналитика Вашего резюме ещё не готова. Пожалуйста, попробуйте позднее."
     parseMode: "markdown"
-    buttons: 
-      -
-        - {text: "Вернуться к резюме", callback_data: "go_specific_resume_menu"}
+    buttons:
+      - - {
+            text: "Вернуться к резюме",
+            callback_data: "go_specific_resume_menu",
+          }
   - vacancyFindState:
     name: "vacancyFindState"
     text: "Введите запрос для поиска, либо выберите один из предыдущих запросов списка ниже."
@@ -108,8 +106,7 @@ states:
     textHandlerFunction: vacancySearchTextHandler
     textHandlerFunctionAsync: true
     buttons:
-      -
-        - {text: "В начало", callback_data: "go_start"}
+      - - { text: "В начало", callback_data: "go_start" }
   - vacancySearchState:
     name: "vacancySearchState"
     text: "По вашему запросу найдено ${user.storage.search.found} вакансий. Показана страница ${user.storage.search.page + 1} из ${user.storage.search.pages}. \n \n  ${user.storage.search.vacancyStr}"
@@ -118,14 +115,13 @@ states:
     onEnterHandlerFunction: prepareSearchInfo
     onEnterHandlerFunctionAsync: true
     newMessageOnEnter: true
-    inlineButtonsGenerator : "vacancySearchButtonsGenerator"
+    inlineButtonsGenerator: "vacancySearchButtonsGenerator"
   - forgetMeState:
     name: "forgetMeState"
     text: "В результате выполнения этой команды, бот забудет всё о вас и больше никогда не будет Вам писать. Забыть Вас?"
     buttons:
-      -
-        - {text: "Да", callback_data: "forget_me_true"}
-        - {text: "Нет", callback_data: "go_start"}
+      - - { text: "Да", callback_data: "forget_me_true" }
+        - { text: "Нет", callback_data: "go_start" }
   - forgottenState:
     name: "forgottenState"
     text: "Все функции обновления и мониторинга отключены. Бот забыл Вас. Лишь написав ему вновь, вы напомните о себе."
@@ -134,53 +130,44 @@ states:
     text: "Чтобы использовать этот метод, Вам необходимо разрешить нашему боту доступ к Вашим данным на сайте HeadHunter. Продолжая, Вы соглашаетесь на передачу своих персональных данных. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user.id}&client_id=${config.client_id}&redirect_uri=${config.redirect_uri}) \n\nВнимание! Данный чат-бот никак не связан с администрацией портала HeadHunter."
     parseMode: "markdown"
     buttons:
-      -
-        - {text: "Отменить действие", callback_data: "go_start"}
+      - - { text: "Отменить действие", callback_data: "go_start" }
   - tokenReceivedSuccess:
     name: "tokenReceivedSuccess"
     text: "Спасибо, теперь вы можете воспользоваться возможностями по управлению своим резюме!"
     newMessageOnEnter: true
     buttons:
-          -
-            - {text: "Вернуться в начало", callback_data: "go_start"}
+      - - { text: "Вернуться в начало", callback_data: "go_start" }
   - noResumesState:
     name: "noResumesState"
     text: "У вас еще нет ни одного резюме! Попробуйте эту функцию позже, когда добавите хотя бы одно"
     buttons:
-              -
-                - {text: "Вернуться в начало", callback_data: "go_start"}
+      - - { text: "Вернуться в начало", callback_data: "go_start" }
   - selectResumeState:
     name: "selectResumeState"
     text: "Пожалуйста, выберите интересующее Вас резюме из списка ниже"
-    inlineButtonsGenerator : "resumeSelectButtonsGenerator"
+    inlineButtonsGenerator: "resumeSelectButtonsGenerator"
 
   - specificResumeState:
     name: "specificResumeState"
     text: "Название резюме: ${JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).title}"
-    inlineButtonsGenerator : "specificResumeButtonsGenerator"
+    inlineButtonsGenerator: "specificResumeButtonsGenerator"
   - resumeViewsShowState:
     name: "resumeViewsShowState"
     text: "У вашего резюме ${user.storage.resume.viewsShow.found} просмотров. Показана страница ${user.storage.resume.viewsShow.page + 1} из ${user.storage.resume.viewsShow.pages}. \n \n${user.storage.resume.viewsShow.pageStr}"
     textExpected: false
     onEnterHandlerFunction: prepareViewsInfo
     onEnterHandlerFunctionAsync: true
-    inlineButtonsGenerator : "resumeViewsButtonsGenerator"
+    inlineButtonsGenerator: "resumeViewsButtonsGenerator"
     parseMode: "markdown"
   - newResumeMessageState:
     name: "newResumeMessageState"
     newMessageOnEnter: true
-    text: "У вашего резюме \" ${JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).title} \" появился новый просмотр! Всего новых просмотров: ${user.lastTimeViews.find( x => x.id == JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id).views}"
+    text: 'У вашего резюме " ${JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).title} " появился новый просмотр! Всего новых просмотров: ${user.lastTimeViews.find( x => x.id == JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id).views}'
     buttons:
-      -
-        - {text: "Открыть просмотры", callback_data: "resume_show_views"}
-      -
-        - {text: "Вернуться в начало", callback_data: "go_start"}
+      - - { text: "Открыть просмотры", callback_data: "resume_show_views" }
+      - - { text: "Вернуться в начало", callback_data: "go_start" }
   - settingMenuState:
     name: "settingMenuState"
     text: "Пока что тут нет никаких настроек :c"
     buttons:
-      -
-        - {text: "В начало", callback_data: "go_start"}
-
-
-
+      - - { text: "В начало", callback_data: "go_start" }

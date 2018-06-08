@@ -1,13 +1,10 @@
-/**
- * Created by Pter on 16.07.2016.
- */
-"use strict";
-var log4js = require('log4js');
-var log = log4js.getLogger('HHTELEGRAMBOT');
-var scenarioHandler = require('./messageDispatcher.js');
-var hh = require('../hhApi');
+const log4js = require('log4js');
+const asyncModule = require('async');
 
-var asyncModule = require('async');
+const log = log4js.getLogger('HHTELEGRAMBOT');
+const scenarioHandler = require('./messageDispatcher.js');
+const hh = require('../hhApi');
+
 
 
 
