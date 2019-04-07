@@ -585,7 +585,20 @@ class scenarioModule {
 
                 queue.push({user: user}, (err, json) => {
                     if (err){
-                        return log.error("Error ", err, " while processing token for user ", user.id,'Also res is ', json);
+                        log.error("Error ", err, " while processing token for user ", user.id,'Also res is ', json);
+                        if ((err.error == "invalid_grant" || err.error == "invalid_request") && (
+                                err.error_description == "token deactivated" ||
+                                err.error_description == "bad token" ||
+                                err.error_description == "token was revoked" ||
+                                err.error_description == "token has already been refreshed" ||
+                                err.error_description == "token not found"
+                            )){
+                            //we need to delete a token for this user
+                            log.info(`Delete a token for user ${user.id}`);
+                            user.token = undefined;
+                            user.save();
+                        }
+                        return;
                     }
                     log.info(json);
                     user.token = json;
