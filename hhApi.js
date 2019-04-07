@@ -58,22 +58,28 @@ module.exports.getResumeViews = function(options,callback){
 
 
 //TODO: understand why function handler differs from others
-module.exports.updateResume = function(token,resume_id,callback){
+module.exports.updateResume = function(token, resume_id, callback){
     request.post({
         url : 'https://api.hh.ru/resumes/'+resume_id+'/publish',
         headers: {
             'Authorization' : ' Bearer '+token,
             'User-Agent' : useragent
         }
-    },function(err,res,body){
-        console.log("Update resume result: "+body);
+    },function(err, res, body){
+        let statusCode = res.statusCode;
+        console.log("Update resume result: " + body);
+        console.log("Status code is:", statusCode)
         if (body.length == 0) {
-            return callback(null,res.statusCode);
+            return callback(null, statusCode);
         }
         var json = JSON.parse(body);
-        if (json.error || json.errors) {callback((json),res.statusCode); return;}
+        if (json.error || json.errors) {
+            console.log('We are jumping out in a callback with two arguments')
+            callback(json, statusCode); 
+            return;
+        }
         //console.log(res);
-        callback(null,res.statusCode);
+        callback(null, statusCode);
     })
 };
 

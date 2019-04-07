@@ -13,6 +13,7 @@ mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/hhTelegramBot');
 var User = require("./models/user");
 var Message = require('./models/message');
+const config = require('./../config.json');
 
 
 class messageDispatcher {
@@ -31,14 +32,14 @@ class messageDispatcher {
         //console.log(str);
         
         //log.info("Loaded scenario:", this.scenario );
-        log.info("Loaded scenario:", JSON.stringify(this.scenario) );
+        log.info("Loaded scenario");
 
         this.bot.on('message',this.messageHandler.bind(this));
         this.bot.on('callback_query',this.messageHandler.bind(this));
 
         //also prepare arrays for easy search
         this.dataHandlersNames = this.scenario.dataHandlers.map( elem => elem.name);
-        console.log(this.dataHandlersNames);
+        log.info(`Received ${this.dataHandlersNames.length} data handlers`);
     }
 
     //receives all messages from user
@@ -446,6 +447,20 @@ class messageDispatcher {
                 return callback(err)
             }
             callback(null, users);
+        })
+    }
+
+    getRandomUsersChunk(callback){
+        User.aggregate([{$sample: {size: 50}}]).exec((err, users) => {
+            if (err){
+                log.error("Error while getRandomUsersChunk:", err);
+                return callback(err)
+            }
+            //we need to turn pure objects into NORMAL objects
+            let ids = users.map(x => x._id);
+            User.find({_id: {$in: ids}}).exec((err, users) => {
+                callback(null, users);
+            })
         })
     }
 

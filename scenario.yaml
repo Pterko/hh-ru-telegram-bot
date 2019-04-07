@@ -131,7 +131,7 @@ states:
     text: "Все функции обновления и мониторинга отключены. Бот забыл Вас. Лишь написав ему вновь, вы напомните о себе."
   - awaitTokenState:
     name: "awaitTokenState"
-    text: "Чтобы использовать этот метод, Вам необходимо разрешить нашему боту доступ к Вашим данным на сайте HeadHunter. Продолжая, Вы соглашаетесь на передачу своих персональных данных. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user.id}&client_id=R6BTQ5B7130M7M5M5CV0EV2E3J0AMN21OOGG76K3SRTKH0K494GNMO2L039M2MG9&redirect_uri=http://hhbot.pterko.ru:12000/hh_redirect_uri) \n\nВнимание! Данный чат-бот никак не связан с администрацией портала HeadHunter."
+    text: "Чтобы использовать этот метод, Вам необходимо разрешить нашему боту доступ к Вашим данным на сайте HeadHunter. Продолжая, Вы соглашаетесь на передачу своих персональных данных. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user.id}&client_id=${config.client_id}&redirect_uri=${config.redirect_uri}) \n\nВнимание! Данный чат-бот никак не связан с администрацией портала HeadHunter."
     parseMode: "markdown"
     buttons:
       -

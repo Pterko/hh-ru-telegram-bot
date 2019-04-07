@@ -16,13 +16,15 @@ class scenarioModule {
         log.info("Initialize bot...");
         this.bot = bot;
         this.handler = new scenarioHandler(bot, this);
-        //this.actionsTimer();
+        this.actionsTimer();
+        
         setInterval(this.actionsTimer.bind(this), 1000*120);
     }
 
 
     actionsTimer(){
         this.updateUserTokens();
+
         setTimeout(this.updateResumes.bind(this), 1000*40);
         setTimeout(this.updateResumesViews.bind(this), 1000*80);
     }
@@ -420,12 +422,12 @@ class scenarioModule {
 
 
     updateResumes(finishCallback){
-        this.handler.getAllUsers( (err, users) => {
+        this.handler.getRandomUsersChunk( (err, users) => {
             if (err){
                 log.error("Error while getting all users:",err);
                 return;
             }
-            log.info(`Received users array. We have ${users.length} users.`);
+            log.info(`Received users array for resume updates. We have ${users.length} users.`);
             var queue = asyncModule.queue(this.updateResumeTaskFunction, 1);
 
             for (let user of users){
@@ -451,12 +453,13 @@ class scenarioModule {
                     }
 
                     log.info(`We're about to update resume ${resume.id} of user ${user.id}`);
-                    queue.push({user: user, resume: resume}, (err, result) => {
+                    queue.push({user: user, resume: resume}, (err, statusCode) => {
+                        log.info('Received statusCode:', statusCode)
                         if (err){
-                            log.error("Error ", err, " while processing user ",user," and resume ",resume);
+                            log.error("Error ", err, " while processing user ", user ," and resume ", resume, 'Also, status code is ', statusCode);
                         }
-                        log.info(result);
-                        switch (result){
+                        log.info(statusCode);
+                        switch (statusCode){
                             case 429:
                                 resume.lastTryToUpdate = Date.now();
                                 log.info("lastTryToUpdate updated");
@@ -466,9 +469,9 @@ class scenarioModule {
                                 log.info("lastTimeUpdate updated");
                                 break;
                             default:
-                                log.error(`Unexpected result: ${result} while updating resume ${resume} of user ${user}`);
+                                log.error(`Unexpected result: ${statusCode} while updating resume ${resume} of user ${user}`);
                         }
-                        log.info(`Work with user ${user} ended.`);
+                        log.info(`Work with user ${user.id} ended.`);
                         user.save();
                     })
 
@@ -480,18 +483,18 @@ class scenarioModule {
 
 
     updateResumeTaskFunction(task, callback){
-        hh.updateResume(task.user.token.access_token,task.resume.id, (err,res) => {
+        hh.updateResume(task.user.token.access_token,task.resume.id, (err, statusCode) => {
             if (err) {
                 log.warn("Received error while updating "+task.user.id+" resume:",err);
-                return callback(err);
+                return callback(err, statusCode);
             }
-            log.info("Auto-updating of "+task.user.first_name+" resume "+task.resume.id+" finished with code "+res+" and error "+err);
-            callback(null, res);
+            log.info("Auto-updating of "+task.user.first_name+" resume "+task.resume.id+" finished with code "+statusCode+" and error "+err);
+            callback(null, statusCode);
         });
     }
 
     updateResumesViews(finishCallback){
-        this.handler.getAllUsers( (err, users) => {
+        this.handler.getRandomUsersChunk( (err, users) => {
             if (err){
                 log.err("Error while getting all users:",err);
                 return;
@@ -559,7 +562,7 @@ class scenarioModule {
     }
 
     updateUserTokens(finishCallback){
-        this.handler.getAllUsers( (err, users) => {
+        this.handler.getRandomUsersChunk( (err, users) => {
             if (err){
                 log.err("Error while getting all users:",err);
                 return;
@@ -575,14 +578,14 @@ class scenarioModule {
                     continue;
                 }
 
-                if ( user.token.expires_at > Math.ceil(Date.now() / 1000) ) {
+                if ( user.token.expires_at > Math.ceil(Date.now() / 1000)  ) {
                     log.info(`User ${user.id} don't look like expired`);
                     continue;
                 }
 
                 queue.push({user: user}, (err, json) => {
                     if (err){
-                        return log.error("Error ", err, " while processing user ",user);
+                        return log.error("Error ", err, " while processing token for user ", user.id,'Also res is ', json);
                     }
                     log.info(json);
                     user.token = json;
@@ -590,7 +593,7 @@ class scenarioModule {
                     user.token.expires_at = Math.round(Date.now()/1000) + parseInt(json.expires_in);
                     log.warn(user);
                     user.markModified('token');
-                    log.info(`Work of updating token with user ${user} ended.`);
+                    log.info(`Work of updating token with user ${user.id} ended.`);
                     user.save();
                 });
             }
