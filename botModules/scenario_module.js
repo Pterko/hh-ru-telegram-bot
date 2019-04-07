@@ -436,6 +436,12 @@ class scenarioModule {
                     // useless user, don't have resumes that we can update
                     continue;
                 }
+
+                if (!user.token){
+                    // useless user, he don't have a token
+                    continue;
+                }
+
                 for (let resume of user.autoUpdatedResumes){
                     if (resume.lastTimeUpdate){
                         //check that 4 hours from last update elapsed
@@ -508,6 +514,12 @@ class scenarioModule {
                     // useless user, don't have resume, that needed to be monitored
                     continue;
                 }
+                
+                if (!user.token){
+                    // useless user, he don't have a token
+                    continue;
+                }
+
                 queue.push({user: user}, (err, result) => {
                     if (err){
                         log.error("Error ", err, " while processing user ", user );
