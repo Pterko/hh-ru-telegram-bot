@@ -16,7 +16,7 @@ var path = require('path');
 
 //init bot
 var TelegramBot = require('node-telegram-bot-api');
-var bot = new TelegramBot(config.token_dev, {polling: true});
+var bot = new TelegramBot(config.token || config.token_dev, {polling: true});
 var debug = true;
 
 log.info("Bot started");

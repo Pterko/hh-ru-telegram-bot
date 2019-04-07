@@ -2,6 +2,10 @@
   "name": "Telegram_headhunter_bot_v2",
   "version": "0.0.2",
   "private": true,
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
   "dependencies": {
     "async": "^2.0.1",
     "express": "^4.14.0",
@@ -11,9 +15,12 @@
     "log4js": "^0.6.33",
     "mongoose": "^4.5.2",
     "morgan": "1.9.1",
-    "node-telegram-bot-api": "0.23.3",
+    "node-telegram-bot-api": "0.30.0",
     "request": "^2.71.0",
     "serve-favicon": "~2.3.0",
     "yamljs": "^0.2.8"
+  },
+  "nodemonConfig": {
+    "ext": "yaml,js,json"
   }
 }
