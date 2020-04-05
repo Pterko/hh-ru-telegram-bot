@@ -2,9 +2,6 @@ require('dotenv').config()
 
 // init logger
 const log4js = require('log4js');
-
-log4js.loadAppender('file');
-// log4js.addAppender(log4js.appenders.file('./bot.log'), 'HHTELEGRAMBOT');
 const log = log4js.getLogger('HHTELEGRAMBOT');
 // const exphbs = require('express-handlebars');
 const path = require('path');
