@@ -3,13 +3,13 @@ const log4js = require('log4js');
 const log = log4js.getLogger('HHTELEGRAMBOT');
 const YAML = require('js-yaml');
 const fs = require('fs');
-
 const mongoose = require('mongoose');
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/hhTelegramBot');
 const User = require('./models/user');
 const Message = require('./models/message');
+
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
 
 class messageDispatcher {
   constructor(bot, scenarioHandler) {

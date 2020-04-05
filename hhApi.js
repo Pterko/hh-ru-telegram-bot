@@ -2,9 +2,6 @@
  * Created by Pter on 12.04.2016.
  */
 const request = require('request');
-const jsonfile = require('jsonfile');
-
-const config = jsonfile.readFileSync('./config.json'); // init config
 
 const useragent = 'HeadHunterTelegramBot/1.0 (pter96@gmail.com)';
 
@@ -130,10 +127,10 @@ module.exports.getAccessTokenByCode = function(code, callback) {
       url: 'https://hh.ru/oauth/token',
       form: {
         grant_type: 'authorization_code',
-        client_id: config.client_id,
-        client_secret: config.client_secret,
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
         code,
-        redirect_uri: config.redirect_uri,
+        redirect_uri: process.env.REDIRECT_URI,
       },
     },
     function(err, res, body) {

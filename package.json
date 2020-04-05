@@ -4,16 +4,21 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
+    "start-export": "nodemon ./workers/rabbitmq.js",
+    "start-token-updater": "nodemon ./workers/tokenUpdater.js",
+    "start-resume-updater": "nodemon ./workers/resumeUpdater.js",
     "dev": "nodemon app.js",
     "autofix": "eslint *.js --fix"
   },
   "dependencies": {
+    "amqplib": "^0.5.5",
     "async": "^2.0.1",
+    "dotenv": "^8.2.0",
     "express": "^4.14.0",
     "js-yaml": "^3.6.1",
     "jsonfile": "^2.2.3",
     "log4js": "^0.6.33",
-    "mongoose": "^4.5.2",
+    "mongoose": "5.9.7",
     "morgan": "1.9.1",
     "node-telegram-bot-api": "0.30.0",
     "request": "^2.71.0",
@@ -31,6 +36,7 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.3",
+    "nodemon": "^2.0.2",
     "prettier": "^1.18.2"
   },
   "nodemonConfig": {

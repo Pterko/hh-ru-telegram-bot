@@ -1,20 +1,19 @@
-const jsonfile = require('jsonfile');
+require('dotenv').config()
 
-const config = jsonfile.readFileSync('./config.json'); // init config
 // init logger
 const log4js = require('log4js');
 
 log4js.loadAppender('file');
-log4js.addAppender(log4js.appenders.file('./bot.log'), 'HHTELEGRAMBOT');
+// log4js.addAppender(log4js.appenders.file('./bot.log'), 'HHTELEGRAMBOT');
 const log = log4js.getLogger('HHTELEGRAMBOT');
-const exphbs = require('express-handlebars');
+// const exphbs = require('express-handlebars');
 const path = require('path');
 const express = require('express');
 
 // init bot
 const TelegramBot = require('node-telegram-bot-api');
 
-const bot = new TelegramBot(config.token || config.token_dev, {
+const bot = new TelegramBot(process.env.BOT_TOKEN, {
   polling: true,
 });
 
@@ -28,15 +27,15 @@ const app = express();
 
 app.set('views', path.join(__dirname, './public/production/'));
 app.set('view partials', path.join(__dirname, './partials'));
-app.engine(
-  '.html',
-  exphbs({
-    defaultLayout: null,
-    extname: '.html',
-    layoutsDir: path.join(__dirname, './public/production/'),
-    partialsDir: path.join(__dirname, './partials'),
-  })
-);
+// app.engine(
+//   '.html',
+//   exphbs({
+//     defaultLayout: null,
+//     extname: '.html',
+//     layoutsDir: path.join(__dirname, './public/production/'),
+//     partialsDir: path.join(__dirname, './partials'),
+//   })
+// );
 app.set('view engine', '.html');
 
 app.use(express.static('public'));
