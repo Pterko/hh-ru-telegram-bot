@@ -28,19 +28,22 @@ var userSchema = new Schema({
       lastTryToUpdate: Number
     }
   ],
+  resumeItems: [mongoose.Schema.Types.Mixed],
+  selectedResumeId: String,
+  
   storage: {
-    search: {
-      vacancySearchQuery: String,
-      page: Number,
-      pages: Number,
-      found: Number,
-      vacancyStr: String
-    },
-    analytics: {
-      last_week_views: Number,
-      comparison_percent: Number,
-      comparison_word: String
-    },
+    // search: {
+    //   vacancySearchQuery: String,
+    //   page: Number,
+    //   pages: Number,
+    //   found: Number,
+    //   vacancyStr: String
+    // },
+    // analytics: {
+    //   last_week_views: Number,
+    //   comparison_percent: Number,
+    //   comparison_word: String
+    // },
     resume: {
       resumes: [String], // each element: resume
       resumes_json: [{}],
