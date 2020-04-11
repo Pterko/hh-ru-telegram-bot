@@ -1,2 +1,20 @@
 stages:
-  - deploy_dev_git
+  - build 
+
+before_script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+build_bot:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+  script:
+    - docker build --tag $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG -f Dockerfile.proxyWorker .
+    - docker push $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG
+  only:
+    - master
+  

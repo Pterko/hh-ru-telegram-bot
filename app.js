@@ -1,5 +1,7 @@
 require('dotenv').config()
 
+require('./workers/rabbitmq.js');
+
 // init logger
 const log4js = require('log4js');
 const log = log4js.getLogger('HHTELEGRAMBOT');
