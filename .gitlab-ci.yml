@@ -17,4 +17,5 @@ build_bot:
     - docker push $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG
   only:
     - master
+    - dev
   
