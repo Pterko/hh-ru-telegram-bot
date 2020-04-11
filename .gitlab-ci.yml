@@ -5,6 +5,8 @@ before_script:
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 build_bot:
+  variables:
+    IMAGE_NAME: bot
   stage: build
   image: docker:stable
   services:
@@ -13,8 +15,8 @@ build_bot:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_DRIVER: overlay2
   script:
-    - docker build --tag $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG -f Dockerfile.proxyWorker .
-    - docker push $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG
+    - docker build --tag $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_REF_SLUG -f Dockerfile.$IMAGE_NAME .
+    - docker push $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_REF_SLUG
   only:
     - master
     - dev
