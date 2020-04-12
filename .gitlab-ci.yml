@@ -16,11 +16,11 @@ build:
     - docker build --tag $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG -f Dockerfile.bot .
     - docker push $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG
 
-    - docker build --tag $CI_REGISTRY_IMAGE/resumeUpdater:$CI_COMMIT_REF_SLUG -f Dockerfile.resumeUpdater .
-    - docker push $CI_REGISTRY_IMAGE/resumeUpdater:$CI_COMMIT_REF_SLUG
+    - docker build --tag $CI_REGISTRY_IMAGE/resume-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.resume-updater .
+    - docker push $CI_REGISTRY_IMAGE/resume-updater:$CI_COMMIT_REF_SLUG
 
-    - docker build --tag $CI_REGISTRY_IMAGE/tokenUpdater:$CI_COMMIT_REF_SLUG -f Dockerfile.tokenUpdater .
-    - docker push $CI_REGISTRY_IMAGE/tokenUpdater:$CI_COMMIT_REF_SLUG
+    - docker build --tag $CI_REGISTRY_IMAGE/token-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.token-updater .
+    - docker push $CI_REGISTRY_IMAGE/token-updater:$CI_COMMIT_REF_SLUG
   only:
     - master
     - dev
