@@ -4,7 +4,7 @@ stages:
 before_script:
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
-build_bot:
+build:
   stage: build
   image: docker:stable
   services:
@@ -15,6 +15,12 @@ build_bot:
   script:
     - docker build --tag $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG -f Dockerfile.bot .
     - docker push $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG
+
+    - docker build --tag $CI_REGISTRY_IMAGE/resumeUpdater:$CI_COMMIT_REF_SLUG -f Dockerfile.resumeUpdater .
+    - docker push $CI_REGISTRY_IMAGE/resumeUpdater:$CI_COMMIT_REF_SLUG
+
+    - docker build --tag $CI_REGISTRY_IMAGE/tokenUpdater:$CI_COMMIT_REF_SLUG -f Dockerfile.tokenUpdater .
+    - docker push $CI_REGISTRY_IMAGE/tokenUpdater:$CI_COMMIT_REF_SLUG
   only:
     - master
     - dev
