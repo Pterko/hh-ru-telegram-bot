@@ -18,7 +18,7 @@
     "js-yaml": "^3.6.1",
     "jsonfile": "^2.2.3",
     "log4js": "^0.6.33",
-    "mongoose": "5.9.7",
+    "mongoose": "5.9.9",
     "morgan": "1.9.1",
     "node-telegram-bot-api": "0.30.0",
     "request": "^2.71.0",
