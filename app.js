@@ -12,6 +12,8 @@ const express = require('express');
 // init bot
 const TelegramBot = require('node-telegram-bot-api');
 
+log.info('Using token:', process.env.BOT_TOKEN);
+
 const bot = new TelegramBot(process.env.BOT_TOKEN, {
   polling: true,
 });
