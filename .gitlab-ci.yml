@@ -1,5 +1,5 @@
 stages:
-  - build 
+  # - build 
   - deploy
 
 build:
@@ -44,6 +44,9 @@ deploy_dev:
       fi
     - kubectl rollout status -f ./deployments/bot.yaml
     - kubectl get all
+  environment:
+    name: dev
+    url: https://dev.hhbot.pterko.ru/
   only:
     - dev
 
