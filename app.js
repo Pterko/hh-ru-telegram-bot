@@ -12,9 +12,9 @@ const express = require('express');
 // init bot
 const TelegramBot = require('node-telegram-bot-api');
 
-for (let envKey of Object.keys(process.env)){
-  process.env[envKey] = process.env[envKey].trim();
-}
+// for (let envKey of Object.keys(process.env)){
+//   process.env[envKey] = process.env[envKey].trim();
+// }
 
 
 
