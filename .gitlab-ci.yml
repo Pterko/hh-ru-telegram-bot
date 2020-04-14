@@ -41,6 +41,8 @@ deploy_dev:
       else
           echo "=> Deployment apply has changed the object, no need to force image update."
       fi
+    - kubectl rollout status -f bot.yml
+
     - |
       if kubectl apply -f resume-updater.yml | grep -q unchanged; then
           echo "=> Patching deployment to force image update."
@@ -48,6 +50,8 @@ deploy_dev:
       else
           echo "=> Deployment apply has changed the object, no need to force image update."
       fi
+    - kubectl rollout status -f resume-updater.yml
+
     - |
       if kubectl apply -f token-updater.yml | grep -q unchanged; then
           echo "=> Patching deployment to force image update."
@@ -55,10 +59,9 @@ deploy_dev:
       else
           echo "=> Deployment apply has changed the object, no need to force image update."
       fi
-
-    - kubectl rollout status -f bot.yml
-    - kubectl rollout status -f resume-updater.yml
     - kubectl rollout status -f token-updater.yml
+
+    
     - kubectl get all
   environment:
     name: dev
