@@ -64,7 +64,7 @@ async function proceedMessage(msg) {
 }
 
 async function updateResume(task){
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     setTimeout(reject, 5000);
     const user = await User.findOne({_id: task._id});
     const resume = user.autoUpdatedResumes.find(x => x.id === task.resume_id);
