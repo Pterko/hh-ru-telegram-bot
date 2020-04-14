@@ -37,13 +37,13 @@ deploy_dev:
     - kubectl version
     - cd deployments
     - |
-      if kubectl apply -f bot.yaml | grep -q unchanged; then
+      if kubectl apply -f bot.yml | grep -q unchanged; then
           echo "=> Patching deployment to force image update."
-          kubectl patch -f bot.yaml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+          kubectl patch -f bot.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
       else
           echo "=> Deployment apply has changed the object, no need to force image update."
       fi
-    - kubectl rollout status -f bot.yaml
+    - kubectl rollout status -f bot.yml
     - kubectl get all
   environment:
     name: dev
