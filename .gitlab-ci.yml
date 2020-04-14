@@ -29,21 +29,24 @@ deploy_dev:
   stage: deploy
   image: 
     name: lachlanevenson/k8s-kubectl:latest
-    entrypoint: ["/bin/sh", "-c"]
+    # entrypoint: ["/bin/sh", "-c"]
   script:
+    - echo $KUBE_NAMESPACE
     - echo $KUBE_URL
     - echo $KUBECONFIG
-    - echo $KUBE_NAMESPACE
-    - kubectl version
-    - |
-      if kubectl apply -f ./deployments/bot.yaml | grep -q unchanged; then
-          echo "=> Patching deployment to force image update."
-          kubectl patch -f ./deployments/bot.yaml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      else
-          echo "=> Deployment apply has changed the object, no need to force image update."
-      fi
-    - kubectl rollout status -f ./deployments/bot.yaml
-    - kubectl get all
+    - cat $KUBECONFIG
+    - echo $KUBE_TOKEN
+
+    # - kubectl version
+    # - |
+    #   if kubectl apply -f ./deployments/bot.yaml | grep -q unchanged; then
+    #       echo "=> Patching deployment to force image update."
+    #       kubectl patch -f ./deployments/bot.yaml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+    #   else
+    #       echo "=> Deployment apply has changed the object, no need to force image update."
+    #   fi
+    # - kubectl rollout status -f ./deployments/bot.yaml
+    # - kubectl get all
   environment:
     name: dev
     url: https://dev.hhbot.pterko.ru/
