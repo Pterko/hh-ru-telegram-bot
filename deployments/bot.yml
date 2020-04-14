@@ -58,9 +58,9 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
-        - containerPort: 12000
-          name: setnamehere
-          protocol: TCP
+          - containerPort: 12000
+            name: setnamehere
+            protocol: TCP
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       terminationGracePeriodSeconds: 0
