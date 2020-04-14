@@ -92,7 +92,7 @@ class scenarioModule {
 
     buttonsArray.push([{ text: 'Обновить резюме', callback_data: 'resume_update' }]);
     buttonsArray.push([{ text: 'Увидеть просмотры резюме', callback_data: 'resume_show_views' }]);
-    buttonsArray.push([{ text: 'Аналитика резюме', callback_data: 'resume_analytics' }]);
+    // buttonsArray.push([{ text: 'Аналитика резюме', callback_data: 'resume_analytics' }]);
     buttonsArray.push([{ text: 'Вернуться в начало', callback_data: 'go_start' }]);
 
     return buttonsArray;

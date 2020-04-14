@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 // require('dotenv').config({path: path.join(process.cwd(), '/.env')});
 
 const mongoose = require("mongoose");
@@ -6,7 +6,10 @@ const amqp = require("amqplib");
 
 const User = require("../botModules/models/user");
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGODB_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const serverAddr = process.env.RABBITMQ_URL;
 
@@ -54,9 +57,8 @@ function connect() {
   setInterval(doExport, exportInteval);
 }
 
-
-async function doExport(){
-  // await sendTokenUpdateTasks();
+async function doExport() {
+  await sendTokenUpdateTasks();
   await sendResumeUpdateTasks();
   await sendResumeViewsUpdateTasks();
 }
@@ -78,7 +80,10 @@ async function sendTokenUpdateTasks() {
     return;
   }
 
-  let eligibleUser = await User.find({}, "id _id");
+  let eligibleUser = await User.find(
+    { "token.expires_at": { $lt: Math.ceil(Date.now() / 1000) } },
+    "id _id"
+  );
   eligibleUser.forEach((user) =>
     channels[`${process.env.ENV}_update_tokens`].sendToQueue(
       `${process.env.ENV}_update_tokens`,
@@ -106,13 +111,43 @@ async function sendResumeUpdateTasks() {
     return;
   }
 
-  let eligibleUser = await User.find({}, "id _id autoUpdatedResumes");
+  let eligibleLastUpdateDate = new Date();
+  eligibleLastUpdateDate.setHours(eligibleLastUpdateDate.getHours() - 4);
+
+  let eligibleLastTryToUpdateDate = new Date();
+  eligibleLastTryToUpdateDate.setHours(
+    eligibleLastTryToUpdateDate.getHours() - 1
+  );
+
+  let eligibleUser = await User.find(
+    {
+      autoUpdatedResumes: {
+        $elemMatch: {
+          $or: [
+            {
+              lastTimeUpdate: { $lt: eligibleLastUpdateDate.getTime() },
+            },
+            {
+              lastTryToUpdate: { $lt: eligibleLastTryToUpdateDate.getTime() },
+            },
+          ],
+        },
+      },
+    },
+    "id _id autoUpdatedResumes"
+  );
   eligibleUser.forEach((user) => {
     if (user.autoUpdatedResumes) {
       user.autoUpdatedResumes.forEach((autoUpdatedResumes) => {
         channels[`${process.env.ENV}_update_resumes`].sendToQueue(
           `${process.env.ENV}_update_resumes`,
-          Buffer.from(JSON.stringify({ _id: user._id, id: user.id, resume_id: autoUpdatedResumes.id })),
+          Buffer.from(
+            JSON.stringify({
+              _id: user._id,
+              id: user.id,
+              resume_id: autoUpdatedResumes.id,
+            })
+          ),
           { deliveryMode: true }
         );
       });
@@ -122,12 +157,14 @@ async function sendResumeUpdateTasks() {
 }
 
 async function sendResumeViewsUpdateTasks() {
-  let queueStats = await getQueueStats(`${process.env.ENV}_update_resume_views`);
+  let queueStats = await getQueueStats(
+    `${process.env.ENV}_update_resume_views`
+  );
 
   console.log(
-    `Current ${process.env.ENV}_update_resume_views queue stats: ${JSON.stringify(
-      queueStats
-    )}`
+    `Current ${
+      process.env.ENV
+    }_update_resume_views queue stats: ${JSON.stringify(queueStats)}`
   );
 
   if (
@@ -138,13 +175,22 @@ async function sendResumeViewsUpdateTasks() {
     return;
   }
 
-  let eligibleUser = await User.find({}, "id _id lastTimeViews");
+  let eligibleUser = await User.find(
+    { "lastTimeViews.0": { $exists: true } },
+    "id _id lastTimeViews"
+  );
   eligibleUser.forEach((user) => {
     if (user.lastTimeViews) {
       user.lastTimeViews.forEach((viewsResume) => {
         channels[`${process.env.ENV}_update_resume_views`].sendToQueue(
           `${process.env.ENV}_update_resume_views`,
-          Buffer.from(JSON.stringify({ _id: user._id, id: user.id, resume_id: viewsResume.id })),
+          Buffer.from(
+            JSON.stringify({
+              _id: user._id,
+              id: user.id,
+              resume_id: viewsResume.id,
+            })
+          ),
           { deliveryMode: true }
         );
       });

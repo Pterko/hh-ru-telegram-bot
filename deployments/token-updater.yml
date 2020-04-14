@@ -56,7 +56,7 @@ spec:
             memory: "64Mi"
             cpu: "250m"
           limits:
-            memory: "256Mi"
+            memory: "128Mi"
             cpu: "500m"
       dnsPolicy: ClusterFirst
       restartPolicy: Always
