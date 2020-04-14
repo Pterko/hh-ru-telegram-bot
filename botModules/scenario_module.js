@@ -410,8 +410,8 @@ class scenarioModule {
       hh.getAccessTokenByCode(code, (err, json) => {
         if (err) {
           log.info('Error while getting token:',err, json, code);
-          bot.sendMessage(user_id, 'Токен неправильный, попробуйте еще.');
-          return ;
+          // bot.sendMessage(user_id, 'Токен неправильный, попробуйте еще.');
+          return;
         }
         user.token = json;
         //user.token.expires_at = Date.now() + parseInt(user.token.expires_in);
