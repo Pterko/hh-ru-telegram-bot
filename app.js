@@ -52,6 +52,8 @@ app.set('view engine', '.html');
 app.use(express.static('public'));
 
 app.get('/hh_redirect_uri', function(req, res) {
+  console.log('received http request:', req);
+  console.log('query:', req.query);
   if (req.query.code) {
     scenario.acceptCode(req.query.code, req.query.state);
   }

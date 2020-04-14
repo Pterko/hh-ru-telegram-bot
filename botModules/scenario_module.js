@@ -409,8 +409,9 @@ class scenarioModule {
       user.token.access_token = '123';
       hh.getAccessTokenByCode(code, (err, json) => {
         if (err) {
+          log.info('Error while getting token:',err, json, code);
           bot.sendMessage(user_id, 'Токен неправильный, попробуйте еще.');
-          throw new Error(err);
+          return ;
         }
         user.token = json;
         //user.token.expires_at = Date.now() + parseInt(user.token.expires_in);
