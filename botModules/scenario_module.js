@@ -418,8 +418,11 @@ class scenarioModule {
         user.token.expires_at = Math.round(Date.now() / 1000) + parseInt(json.expires_in);
         log.warn(user);
         user.markModified('token');
-        user.save(result => log.warn(result)).then(result => log.warn(result));
-        this.handler.foreignEventReceiver(user_id, { setState: 'tokenReceivedSuccess' });
+        user.save(result => {
+          log.warn(result);
+          log.info('User saved, lets move to event receiver');
+          this.handler.foreignEventReceiver(user_id, { setState: 'tokenReceivedSuccess' });
+        })
       });
     });
   }

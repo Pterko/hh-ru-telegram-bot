@@ -337,6 +337,7 @@ class messageDispatcher {
 
   foreignEventReceiver(user_id, options) {
     this.getUserObjectFromMsg({ from: { id: user_id } }, (err, user) => {
+      log.info('User received in foreignEventReceiver');
       if (options.setState) {
         this.changeUserState(user, options.setState);
       }
