@@ -152,11 +152,10 @@ class messageDispatcher {
               if (!(dataHandler.updatePreviousMessage == false)) {
                 this.updateLastMessageAccordingToState(msg, user);
               }
-            },
-            error => {
-              log.error('Error while saving user:', error, user);
             }
-          );
+          ).catch(error => {
+            log.error('Error while saving user:', error, user);
+          });
         },
         error => {
           log.error('Error while promisified last promises:', error);
