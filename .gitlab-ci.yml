@@ -31,6 +31,9 @@ deploy_dev:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
   script:
+    - echo $KUBE_URL
+    - echo $KUBECONFIG
+    - echo $KUBE_NAMESPACE
     - kubectl version
     - |
       if kubectl apply -f ./deployments/bot.yaml | grep -q unchanged; then
