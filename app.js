@@ -12,12 +12,19 @@ const express = require('express');
 // init bot
 const TelegramBot = require('node-telegram-bot-api');
 
+for (let envKey of Object.keys(process.env)){
+  process.env[envKey] = process.env[envKey].trim();
+}
+
+
+
 log.info('Using token:', process.env.BOT_TOKEN);
 
 log.info('Our env:', process.env);
 
 
-const bot = new TelegramBot(process.env.BOT_TOKEN.trim(), {
+
+const bot = new TelegramBot(process.env.BOT_TOKEN, {
   polling: true,
 });
 
