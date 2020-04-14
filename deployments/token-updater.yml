@@ -8,12 +8,12 @@ spec:
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: hh-bot
+      app: hh-bot-token-updater
       env: staging
   template:
     metadata:
       labels:
-        app: hh-bot
+        app: hh-bot-token-updater
         env: staging
       namespace: default
     spec:
