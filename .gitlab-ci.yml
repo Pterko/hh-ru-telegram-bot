@@ -35,31 +35,19 @@ deploy_dev:
     - cd deployments
 
     - |
-      if kubectl apply -f bot.yml | grep -q unchanged; then
-          echo "=> Patching deployment to force image update."
-          kubectl patch -f bot.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      else
-          echo "=> Deployment apply has changed the object, no need to force image update."
-      fi
-    - kubectl rollout status -f bot.yml
+      kubectl apply -f bot.yml
+      kubectl patch -f bot.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      kubectl rollout status -f bot.yml
 
     - |
-      if kubectl apply -f resume-updater.yml | grep -q unchanged; then
-          echo "=> Patching deployment to force image update."
-          kubectl patch -f resume-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      else
-          echo "=> Deployment apply has changed the object, no need to force image update."
-      fi
-    - kubectl rollout status -f resume-updater.yml
+      kubectl apply -f resume-updater.yml 
+      kubectl patch -f resume-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      kubectl rollout status -f resume-updater.yml
 
     - |
-      if kubectl apply -f token-updater.yml | grep -q unchanged; then
-          echo "=> Patching deployment to force image update."
-          kubectl patch -f token-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      else
-          echo "=> Deployment apply has changed the object, no need to force image update."
-      fi
-    - kubectl rollout status -f token-updater.yml
+      kubectl apply -f token-updater.yml 
+      kubectl patch -f token-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      kubectl rollout status -f token-updater.yml
 
     
     - kubectl get all
