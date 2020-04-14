@@ -24,7 +24,7 @@ spec:
           - name: ENV
             value: dev
           - name: CLIENT_ID
-            value: '123'
+            value: 'KTJU0OMC88I9HP6E85PL44Q10PAC73I5DOIR5HMT4ME45DKOGJPSKP2F3VRUVM34'
           - name: BOT_TOKEN
             valueFrom:
               secretKeyRef:
