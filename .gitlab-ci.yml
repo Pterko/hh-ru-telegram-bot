@@ -1,5 +1,6 @@
 stages:
   - build 
+  - deploy
 
 before_script:
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -24,4 +25,25 @@ build:
   only:
     - master
     - dev
-  
+
+deploy_dev:
+  stage: deploy
+  image: 
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    - kubectl version
+    - |
+      if kubectl apply -f ./deployments/bot.yaml | grep -q unchanged; then
+          echo "=> Patching deployment to force image update."
+          kubectl patch -f ./deployments/bot.yaml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      else
+          echo "=> Deployment apply has changed the object, no need to force image update."
+      fi
+    - kubectl rollout status -f ./deployments/bot.yaml
+    - kubectl get all
+  only:
+    - dev
+
+
+        
