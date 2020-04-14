@@ -1,29 +1,29 @@
 stages:
-  # - build 
+  - build 
   - deploy
 
-# build:
-#   stage: build
-#   image: docker:stable
-#   services:
-#     - docker:dind
-#   variables:
-#     DOCKER_HOST: tcp://docker:2375
-#     DOCKER_DRIVER: overlay2
-#   script:
-#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+build:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
-#     - docker build --tag $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG -f Dockerfile.bot .
-#     - docker push $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG
+    - docker build --tag $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG -f Dockerfile.bot .
+    - docker push $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG
 
-#     - docker build --tag $CI_REGISTRY_IMAGE/resume-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.resume-updater .
-#     - docker push $CI_REGISTRY_IMAGE/resume-updater:$CI_COMMIT_REF_SLUG
+    - docker build --tag $CI_REGISTRY_IMAGE/resume-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.resume-updater .
+    - docker push $CI_REGISTRY_IMAGE/resume-updater:$CI_COMMIT_REF_SLUG
 
-#     - docker build --tag $CI_REGISTRY_IMAGE/token-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.token-updater .
-#     - docker push $CI_REGISTRY_IMAGE/token-updater:$CI_COMMIT_REF_SLUG
-#   only:
-#     - master
-#     - dev
+    - docker build --tag $CI_REGISTRY_IMAGE/token-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.token-updater .
+    - docker push $CI_REGISTRY_IMAGE/token-updater:$CI_COMMIT_REF_SLUG
+  only:
+    - master
+    - dev
 
 deploy_dev:
   stage: deploy
@@ -31,11 +31,9 @@ deploy_dev:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
   script:
-    # - echo $KUBE_URL
-    # - echo $KUBECONFIG
-    # - echo $KUBE_NAMESPACE
     - kubectl version
     - cd deployments
+
     - |
       if kubectl apply -f bot.yml | grep -q unchanged; then
           echo "=> Patching deployment to force image update."
@@ -43,7 +41,24 @@ deploy_dev:
       else
           echo "=> Deployment apply has changed the object, no need to force image update."
       fi
+    - |
+      if kubectl apply -f resume-updater.yml | grep -q unchanged; then
+          echo "=> Patching deployment to force image update."
+          kubectl patch -f resume-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      else
+          echo "=> Deployment apply has changed the object, no need to force image update."
+      fi
+    - |
+      if kubectl apply -f token-updater.yml | grep -q unchanged; then
+          echo "=> Patching deployment to force image update."
+          kubectl patch -f token-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      else
+          echo "=> Deployment apply has changed the object, no need to force image update."
+      fi
+
     - kubectl rollout status -f bot.yml
+    - kubectl rollout status -f resume-updater.yml
+    - kubectl rollout status -f token-updater.yml
     - kubectl get all
   environment:
     name: dev

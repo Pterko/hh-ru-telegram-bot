@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hh-bot
+  name: hh-bot-token-updater
   namespace: default
 spec:
   replicas: 1
@@ -47,20 +47,17 @@ spec:
             secretKeyRef:
               name: hh-bot-secrets-dev
               key: RABBITMQ_URL
-        image: registry.gitlab.com/pter/hh-ru-telegram-bot/bot:dev
+        image: registry.gitlab.com/pter/hh-ru-telegram-bot/token-updaterr:dev
         imagePullPolicy: Always
-        name: hh-bot
+        name: hh-bot-token-updater
         ports:
         resources:
           requests:
             memory: "64Mi"
             cpu: "250m"
           limits:
-            memory: "128Mi"
+            memory: "256Mi"
             cpu: "500m"
-        - containerPort: 12000
-          name: setnamehere
-          protocol: TCP
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       terminationGracePeriodSeconds: 0
