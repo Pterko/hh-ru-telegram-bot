@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "start-export": "nodemon ./workers/rabbitmq.js",
-    "start-token-updater": "nodemon ./workers/tokenUpdater.js",
-    "start-resume-updater": "nodemon ./workers/resumeUpdater.js",
+    "start-export": "node ./workers/rabbitmq.js",
+    "start-token-updater": "node ./workers/tokenUpdater.js",
+    "start-resume-updater": "node ./workers/resumeUpdater.js",
     "dev": "nodemon app.js",
     "autofix": "eslint *.js --fix"
   },

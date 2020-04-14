@@ -47,7 +47,7 @@ spec:
             secretKeyRef:
               name: hh-bot-secrets-dev
               key: RABBITMQ_URL
-        image: registry.gitlab.com/pter/hh-ru-telegram-bot/token-updaterr:dev
+        image: registry.gitlab.com/pter/hh-ru-telegram-bot/token-updater:dev
         imagePullPolicy: Always
         name: hh-bot-token-updater
         ports:
