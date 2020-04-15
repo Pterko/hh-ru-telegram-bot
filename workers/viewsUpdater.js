@@ -19,7 +19,7 @@ mongoose.connect(process.env.MONGODB_URL, {
 });
 
 const serverAddr = process.env.RABBITMQ_URL;
-const q = `${process.env.ENV}_update_tokens`;
+const q = `${process.env.ENV}_update_views`;
 const outbound_queue_name = `${process.env.ENV}_notifications`;
 let channel;
 
