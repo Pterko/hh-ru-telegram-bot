@@ -1,12 +1,13 @@
 {
-  "name": "Telegram_headhunter_bot_v2",
-  "version": "0.0.2",
+  "name": "telegram-hh-bot",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "start": "node app.js",
     "start-export": "node ./workers/rabbitmq.js",
     "start-token-updater": "node ./workers/tokenUpdater.js",
     "start-resume-updater": "node ./workers/resumeUpdater.js",
+    "start-views-updater": "node ./worker/viewsUpdater.js",
     "dev": "nodemon app.js",
     "autofix": "eslint *.js --fix"
   },

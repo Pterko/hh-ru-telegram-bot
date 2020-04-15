@@ -20,6 +20,7 @@ mongoose.connect(process.env.MONGODB_URL, {
 
 const serverAddr = process.env.RABBITMQ_URL;
 const q = `${process.env.ENV}_update_tokens`;
+const outbound_queue_name = `${process.env.ENV}_notifications`;
 let channel;
 
 start();
@@ -42,6 +43,14 @@ async function start() {
           channel.consume(q, proceedMessage, { noAck: false });
           console.log(" [*] Waiting for messages. To exit press CTRL+C");
         });
+
+        let outOk = ch.assertQueue(outbound_queue_name, { durable: true });
+
+        return outOk.then(function() {
+          // channels[queueName] = ch;
+          console.log("Connected to outbound queue");
+        });
+
         return ok;
       });
     })
@@ -72,7 +81,7 @@ async function updateResumeViews(task) {
     setTimeout(reject, 10000);
     hh.getMyResumes(task.user.token.access_token, (err, json) => {
       if (err) {
-        log.error('Error ', err, ' while processing user ', user);
+        log.error("Error ", err, " while processing user ", user);
         return;
       }
       log.info(`Received result from hhApi: ${result}`);
@@ -81,7 +90,7 @@ async function updateResumeViews(task) {
       for (let resume of result.items) {
         log.info(`Check resume ${resume.id}`);
         //check what that resume in our updating list
-        var oldResume = user.lastTimeViews.find(x => x.id == resume.id);
+        var oldResume = user.lastTimeViews.find((x) => x.id == resume.id);
         if (oldResume == undefined) {
           log.info(`Resume ${resume.id} don't needed to be monitored, skip it`);
           continue;
@@ -91,9 +100,15 @@ async function updateResumeViews(task) {
           oldResume.views = resume.new_views;
 
           user.storage.resume.selectedResumeOffset = user.storage.resume.resumes.findIndex(
-            x => JSON.parse(x).id == resume.id
+            (x) => JSON.parse(x).id == resume.id
           );
-          this.handler.sendFakeDataMessage('new_resume_view_incoming', user);
+
+          // this.handler.sendFakeDataMessage('new_resume_view_incoming', user);
+          sendNotification(user, {
+            action: "fakeDataMessage",
+            dataMessage: "new_resume_view_incoming",
+          });
+
           log.info(`New views detected on resume ${resume.id}`);
           //currently this function support updating olny of one resume at the same time
           break;
@@ -106,4 +121,17 @@ async function updateResumeViews(task) {
       user.save();
     });
   });
+}
+
+function sendNotification(user, payload) {
+  channel.sendToQueue(
+    outbound_queue_name,
+    Buffer.from(
+      JSON.stringify({
+        user: user,
+        payload: payload,
+      })
+    ),
+    { deliveryMode: true }
+  );
 }
