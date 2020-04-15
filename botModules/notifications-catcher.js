@@ -1,3 +1,4 @@
+const amqp = require("amqplib");
 
 const serverAddr = process.env.RABBITMQ_URL;
 const q = `${process.env.ENV}_notifications`;
