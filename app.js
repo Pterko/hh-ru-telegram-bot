@@ -34,6 +34,8 @@ const scenarioModule = require('./botModules/scenario_module');
 
 const scenario = new scenarioModule(bot);
 
+global.scenario = scenario;
+
 const app = express();
 
 app.set('views', path.join(__dirname, './public/production/'));

@@ -400,6 +400,14 @@ class scenarioModule {
     return {};
   }
 
+  async acceptNotification(notification){
+    if (notification.action === "fakeDataMessage"){
+      this.handler.getUserObjectFromMsg({ from: { id: notification.user.id } }, (err, user) => {
+        this.handler.sendFakeDataMessage('new_resume_view_incoming', user)
+      });
+    }
+  }
+
   acceptCode(code, user_id) {
     //so, in this method we accept code from user and try to receive normal hh.ru api code
     log.info('Received code ', code, ' for user ', user_id);
