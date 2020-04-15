@@ -7,7 +7,7 @@
     "start-export": "node ./workers/rabbitmq.js",
     "start-token-updater": "node ./workers/tokenUpdater.js",
     "start-resume-updater": "node ./workers/resumeUpdater.js",
-    "start-views-updater": "node ./worker/viewsUpdater.js",
+    "start-views-updater": "node ./workers/viewsUpdater.js",
     "dev": "nodemon app.js",
     "autofix": "eslint *.js --fix"
   },
