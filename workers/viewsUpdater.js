@@ -79,7 +79,7 @@ async function updateResumeViews(task) {
 
   return new Promise((resolve, reject) => {
     setTimeout(reject, 10000);
-    hh.getMyResumes(task.user.token.access_token, (err, json) => {
+    hh.getMyResumes(user.token.access_token, (err, json) => {
       if (err) {
         log.error("Error ", err, " while processing user ", user);
         return;
