@@ -11,7 +11,7 @@ class scenarioModule {
     this.bot = bot;
     this.handler = new scenarioHandler(bot, this);
 
-    setTimeout(this.updateResumesViews.bind(this), 1000 * 30);
+    // setTimeout(this.updateResumesViews.bind(this), 1000 * 30);
 
   }
 
@@ -401,9 +401,10 @@ class scenarioModule {
   }
 
   async acceptNotification(notification){
-    if (notification.action === "fakeDataMessage"){
+    console.log('acceptNotification', notification);
+    if (notification.payload.action === "fakeDataMessage"){
       this.handler.getUserObjectFromMsg({ from: { id: notification.user.id } }, (err, user) => {
-        this.handler.sendFakeDataMessage('new_resume_view_incoming', user)
+        this.handler.sendFakeDataMessage(notification.payload.dataMessage, user)
       });
     }
   }

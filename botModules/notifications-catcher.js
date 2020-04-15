@@ -49,7 +49,8 @@ async function proceedMessage(msg) {
 }
 
 function proceedNotification(notification){
+  console.log('proceedNotification', notification);
   // if (notification.action === "fakeDataMessage"){
-    global.scenario.acceptNotification(notification);
+  global.scenario.acceptNotification(notification);
   // }
 }
