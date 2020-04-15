@@ -123,7 +123,7 @@ async function sendResumeUpdateTasks() {
     {
       autoUpdatedResumes: {
         $elemMatch: {
-          $or: [
+          $and: [
             {
               lastTimeUpdate: { $lt: eligibleLastUpdateDate.getTime() },
             },
