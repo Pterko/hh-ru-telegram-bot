@@ -84,6 +84,7 @@ async function updateResumeViews(task) {
         log.error("Error ", err, " while processing user ", user);
         return;
       }
+      let result = json;
       log.info(`Received result from hhApi: ${result}`);
       if (!result) return;
 
