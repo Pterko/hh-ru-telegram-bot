@@ -36,6 +36,8 @@ const scenario = new scenarioModule(bot);
 
 global.scenario = scenario;
 
+require('./botModules/notifications-catcher');
+
 const app = express();
 
 app.set('views', path.join(__dirname, './public/production/'));
