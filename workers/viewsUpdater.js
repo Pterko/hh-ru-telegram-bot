@@ -79,13 +79,13 @@ async function updateResumeViews(task) {
 
   return new Promise((resolve, reject) => {
     setTimeout(reject, 10000);
-    hh.getMyResumes(user.token.access_token, (err, json) => {
+    hh.getMyResumes(user.token.access_token, async (err, json) => {
       if (err) {
         log.error("Error ", err, " while processing user ", user);
         return;
       }
       let result = json;
-      log.info(`Received result from hhApi: ${result}`);
+      log.info(`Received result from hhApi:`, JSON.stringify(result));
       if (!result) return;
 
       for (let resume of result.items) {
@@ -119,7 +119,8 @@ async function updateResumeViews(task) {
         }
       }
       log.info(`Work of gettin resume views with user ${user.id} ended.`);
-      user.save();
+      await user.save();
+      resolve();
     });
   });
 }
