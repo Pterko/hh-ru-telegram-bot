@@ -48,22 +48,22 @@ deploy_dev:
     - |
       kubectl apply -f bot2.yml
       kubectl patch -f bot2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status -f bot.yml
+      kubectl rollout status -f bot2.yml
 
     - |
       kubectl apply -f resume-updater2.yml 
       kubectl patch -f resume-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status -f resume-updater.yml
+      kubectl rollout status -f resume-updater2.yml
 
     - |
       kubectl apply -f token-updater2.yml 
       kubectl patch -f token-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status -f token-updater.yml
+      kubectl rollout status -f token-updater2.yml
 
     - |
       kubectl apply -f views-updater2.yml 
       kubectl patch -f views-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status -f views-updater.yml
+      kubectl rollout status -f views-updater2.yml
     
     - kubectl get all
   environment:
