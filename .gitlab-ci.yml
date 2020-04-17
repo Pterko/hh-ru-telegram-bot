@@ -38,31 +38,31 @@ deploy_dev:
     - apk add --no-cache gettext
 
     - cd devops
-    - envsubst < bot.yml | sponge bot.yml
-    - envsubst < resume-updater.yml | sponge resume-updater.yml
-    - envsubst < token-updater.yml | sponge token-updater.yml
-    - envsubst < views-updater.yml | sponge views-updater.yml
+    - envsubst < bot.yml > bot2.yml
+    - envsubst < resume-updater.yml > resume-updater2.yml
+    - envsubst < token-updater.yml > token-updater2.yml
+    - envsubst < views-updater.yml > views-updater2.yml
 
     
 
     - |
-      kubectl apply -f bot.yml
-      kubectl patch -f bot.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      kubectl apply -f bot2.yml
+      kubectl patch -f bot2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
       kubectl rollout status -f bot.yml
 
     - |
-      kubectl apply -f resume-updater.yml 
-      kubectl patch -f resume-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      kubectl apply -f resume-updater2.yml 
+      kubectl patch -f resume-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
       kubectl rollout status -f resume-updater.yml
 
     - |
-      kubectl apply -f token-updater.yml 
-      kubectl patch -f token-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      kubectl apply -f token-updater2.yml 
+      kubectl patch -f token-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
       kubectl rollout status -f token-updater.yml
 
     - |
-      kubectl apply -f views-updater.yml 
-      kubectl patch -f views-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      kubectl apply -f views-updater2.yml 
+      kubectl patch -f views-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
       kubectl rollout status -f views-updater.yml
     
     - kubectl get all
