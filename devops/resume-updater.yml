@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hh-bot-resume-updater
-  namespace: hh-bot-${CI_COMMIT_REF_SLUG}
 spec:
   replicas: 1
   revisionHistoryLimit: 1
@@ -13,7 +12,6 @@ spec:
     metadata:
       labels:
         app: hh-bot-resume-updater
-      namespace: hh-bot-${CI_COMMIT_REF_SLUG}
     spec:
       imagePullSecrets:
       - name: regcred
