@@ -37,7 +37,8 @@ deploy_dev:
     - kubectl version
     - apk add --no-cache gettext
 
-    - kubectl create secret -n $KUBE_NAMESPACE docker-registry regcred --docker-server=registry.gitlab.com --docker-username=${$CI_DEPLOY_USER} --docker-password=${CI_DEPLOY_PASSWORD} -o yaml --dry-run | kubectl replace --force -n $KUBE_NAMESPACE -f - 
+    - kubectl delete -n $KUBE_NAMESPACE secret regcred
+    - kubectl create secret -n $KUBE_NAMESPACE docker-registry regcred --docker-server=registry.gitlab.com --docker-username=${$CI_DEPLOY_USER} --docker-password=${CI_DEPLOY_PASSWORD}
 
     - cd devops
     - envsubst < bot.yml > bot2.yml
