@@ -37,7 +37,10 @@ deploy_dev:
     - kubectl version
 
     - cd devops
-    - envsubst < *.yml > *.yml
+    - envsubst < bot.yml | sponge bot.yml
+    - envsubst < resume-updater.yml | sponge resume-updater.yml
+    - envsubst < token-updater.yml | sponge token-updater.yml
+    - envsubst < views-updater.yml | sponge views-updater.yml
 
     
 
