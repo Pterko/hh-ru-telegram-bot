@@ -15,7 +15,6 @@ apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
   name: hh-bot-letsencrypt
-  namespace: hh-bot-${CI_COMMIT_REF_SLUG}
 spec:
   acme:
     # The ACME server URL
@@ -35,6 +34,7 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: mysite-nginx-ingress
+  namespace: hh-bot-${CI_COMMIT_REF_SLUG}
   annotations:
     kubernetes.io/ingress.class: "traefik"
     cert-manager.io/cluster-issuer: hh-bot-letsencrypt
