@@ -31,7 +31,7 @@ stages:
 deploy_dev:
   stage: deploy
   image: 
-    name: lachlanevenson/k8s-kubectl:latest
+    name:  alpine/k8s:latest
     entrypoint: ["/bin/sh", "-c"]
   script:
     - kubectl version
