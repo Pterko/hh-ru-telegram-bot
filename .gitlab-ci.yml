@@ -49,6 +49,7 @@ deploy_dev:
       kubectl apply -f bot2.yml
       kubectl patch -f bot2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
       kubectl rollout status -f bot2.yml
+    - echo "bot finished"
 
     - |
       kubectl apply -f resume-updater2.yml 
