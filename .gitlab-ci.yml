@@ -35,7 +35,7 @@ deploy_dev:
     entrypoint: ["/bin/sh", "-c"]
   script:
     - kubectl version
-    - apk update && apk add envsubst && apk add sponge 
+    - apk add --no-cache gettext
 
     - cd devops
     - envsubst < bot.yml | sponge bot.yml
