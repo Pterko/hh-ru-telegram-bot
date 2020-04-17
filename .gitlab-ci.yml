@@ -43,6 +43,7 @@ deploy_dev:
     - envsubst < token-updater.yml > token-updater2.yml
     - envsubst < views-updater.yml > views-updater2.yml
 
+    
 
     - kubectl apply -f issuer.yml || true
     
