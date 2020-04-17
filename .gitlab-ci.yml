@@ -31,10 +31,11 @@ stages:
 deploy_dev:
   stage: deploy
   image: 
-    name: alpine/k8s:1.13.10
+    name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
   script:
     - kubectl version
+    - apk update && apk add envsubst && apk add sponge 
 
     - cd devops
     - envsubst < bot.yml | sponge bot.yml
