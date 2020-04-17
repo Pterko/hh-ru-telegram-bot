@@ -154,7 +154,7 @@ class messageDispatcher {
               }
             }
           ).catch(error => {
-            log.error('Error while saving user:', error, user, error.inspect());
+            log.error('Error while saving user:', error, user);
           });
         },
         error => {

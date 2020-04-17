@@ -1,0 +1,118 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hh-bot-service
+  namespace: hh-bot-${CI_COMMIT_REF_SLUG}
+spec:
+  selector:
+    app: hh-bot
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 12000
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: hh-bot-letsencrypt
+  namespace: hh-bot-${CI_COMMIT_REF_SLUG}
+spec:
+  acme:
+    # The ACME server URL
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # Email address used for ACME registration
+    email: pter96@gmail.com
+    # Name of a secret used to store the ACME account private key
+    privateKeySecretRef:
+      name: hh-bot-letsencrypt
+    # Enable the HTTP-01 challenge provider
+    solvers:
+    - http01:
+        ingress:
+          class: traefik
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: mysite-nginx-ingress
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    cert-manager.io/cluster-issuer: hh-bot-letsencrypt
+spec:
+  rules:
+  - host: dev.hhbot.pterko.ru
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: hh-bot-service
+          servicePort: 80
+  tls:
+  - hosts:
+    - dev.hhbot.pterko.ru
+    secretName: dev.hhbot.pterko.ru-tls
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hh-bot
+  namespace: hh-bot-${CI_COMMIT_REF_SLUG}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: hh-bot
+  template:
+    metadata:
+      labels:
+        app: hh-bot
+      namespace: hh-bot-${CI_COMMIT_REF_SLUG}
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+        - env:
+          - name: ENV
+            value: ${CI_COMMIT_REF_SLUG}
+          - name: CLIENT_ID
+            value: 'KTJU0OMC88I9HP6E85PL44Q10PAC73I5DOIR5HMT4ME45DKOGJPSKP2F3VRUVM34'
+          - name: BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hh-bot-secrets
+                key: BOT_TOKEN
+          - name: MONGODB_URL
+            valueFrom:
+              secretKeyRef:
+                name: hh-bot-secrets
+                key: MONGODB_URL
+          - name: CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: hh-bot-secrets
+                key: CLIENT_SECRET
+          - name: REDIRECT_URI
+            value: '${CI_ENVIRONMENT_URL}/hh_redirect_uri'
+          - name: RABBITMQ_URL
+            valueFrom:
+              secretKeyRef:
+                name: hh-bot-secrets
+                key: RABBITMQ_URL
+          image: registry.gitlab.com/pter/hh-ru-telegram-bot/bot:${CI_COMMIT_REF_SLUG}
+          imagePullPolicy: Always
+          name: hh-bot
+          ports:
+          - containerPort: 12000
+            name: setnamehere
+            protocol: TCP
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+              cpu: "500m"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 0

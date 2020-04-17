@@ -35,32 +35,38 @@ deploy_dev:
     entrypoint: ["/bin/sh", "-c"]
   script:
     - kubectl version
+    - kubectl create namespace hh-bot-${CI_COMMIT_REF_SLUG} || true
+
+
     - cd deployments
+    - envsubst < *.yml > *.yml
+
+    
 
     - |
       kubectl apply -f bot.yml
       kubectl patch -f bot.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-    # kubectl rollout status -f bot.yml
+      kubectl rollout status -f bot.yml
 
     - |
       kubectl apply -f resume-updater.yml 
       kubectl patch -f resume-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-    # kubectl rollout status -f resume-updater.yml
+      kubectl rollout status -f resume-updater.yml
 
     - |
       kubectl apply -f token-updater.yml 
       kubectl patch -f token-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-    # kubectl rollout status -f token-updater.yml
+      kubectl rollout status -f token-updater.yml
 
     - |
       kubectl apply -f views-updater.yml 
       kubectl patch -f views-updater.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-    # kubectl rollout status -f views-updater.yml
+      kubectl rollout status -f views-updater.yml
     
     - kubectl get all
   environment:
     name: dev
-    url: https://dev.hhbot.pterko.ru/
+    url: https://dev.hhbot.pterko.ru
   only:
     - dev
 
