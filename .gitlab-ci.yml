@@ -36,7 +36,7 @@ deploy_dev:
   script:
     - kubectl version
 
-    - cd deployments
+    - cd devops
     - envsubst < *.yml > *.yml
 
     
