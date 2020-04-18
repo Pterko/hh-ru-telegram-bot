@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hh-bot-service
+spec:
+  selector:
+    app: hh-bot
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 12000
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: mysite-nginx-ingress
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    cert-manager.io/cluster-issuer: hh-bot-letsencrypt
+spec:
+  rules:
+  - host: ${SERVICE_DOMAIN}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: hh-bot-service
+          servicePort: 80
+  tls:
+  - hosts:
+    - ${SERVICE_DOMAIN}
+    secretName: ${SERVICE_DOMAIN}-tls
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hh-bot
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: hh-bot
+  template:
+    metadata:
+      labels:
+        app: hh-bot
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+        - env:
+          - name: ENV
+            value: ${CI_COMMIT_REF_SLUG}
+          - name: CLIENT_ID
+            value: 'KTJU0OMC88I9HP6E85PL44Q10PAC73I5DOIR5HMT4ME45DKOGJPSKP2F3VRUVM34'
+          - name: BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hh-bot-secrets
+                key: BOT_TOKEN
+          - name: MONGODB_URL
+            valueFrom:
+              secretKeyRef:
+                name: hh-bot-secrets
+                key: MONGODB_URL
+          - name: CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: hh-bot-secrets
+                key: CLIENT_SECRET
+          - name: REDIRECT_URI
+            value: '${CI_ENVIRONMENT_URL}/hh_redirect_uri'
+          - name: RABBITMQ_URL
+            valueFrom:
+              secretKeyRef:
+                name: hh-bot-secrets
+                key: RABBITMQ_URL
+          image: registry.gitlab.com/pter/hh-ru-telegram-bot/bot:${CI_COMMIT_REF_SLUG}
+          imagePullPolicy: Always
+          name: hh-bot
+          ports:
+          - containerPort: 12000
+            name: setnamehere
+            protocol: TCP
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+              cpu: "500m"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 0

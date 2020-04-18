@@ -3,13 +3,13 @@ const log4js = require('log4js');
 const log = log4js.getLogger('HHTELEGRAMBOT');
 const YAML = require('js-yaml');
 const fs = require('fs');
-
 const mongoose = require('mongoose');
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/hhTelegramBot');
 const User = require('./models/user');
 const Message = require('./models/message');
+
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
 
 class messageDispatcher {
   constructor(bot, scenarioHandler) {
@@ -152,11 +152,10 @@ class messageDispatcher {
               if (!(dataHandler.updatePreviousMessage == false)) {
                 this.updateLastMessageAccordingToState(msg, user);
               }
-            },
-            error => {
-              log.error('Error while saving user:', error);
             }
-          );
+          ).catch(error => {
+            log.error('Error while saving user:', error, user);
+          });
         },
         error => {
           log.error('Error while promisified last promises:', error);
@@ -317,8 +316,9 @@ class messageDispatcher {
       try {
         responseText = eval(`\`${stateObject.text}\``);
       } catch (ex) {
+        log.info('Error:', ex);
         responseText =
-          'Возникла внутренняя ошибка при генерации текста сообщения. Приносим свои извинения, попробуйте вернуться в главное меню.';
+          'Возникла внутренняя ошибка при генерации текста сообщения. Приносим свои извинения, попробуйте вернуться в главное меню. Информация для отладки: ' + ex.message;
       }
       this.emitMessage(user, responseText, options, false);
     }
@@ -337,6 +337,7 @@ class messageDispatcher {
 
   foreignEventReceiver(user_id, options) {
     this.getUserObjectFromMsg({ from: { id: user_id } }, (err, user) => {
+      log.info('User received in foreignEventReceiver');
       if (options.setState) {
         this.changeUserState(user, options.setState);
       }

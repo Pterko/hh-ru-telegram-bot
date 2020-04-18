@@ -127,7 +127,7 @@ states:
     text: "Все функции обновления и мониторинга отключены. Бот забыл Вас. Лишь написав ему вновь, вы напомните о себе."
   - awaitTokenState:
     name: "awaitTokenState"
-    text: "Чтобы использовать этот метод, Вам необходимо разрешить нашему боту доступ к Вашим данным на сайте HeadHunter. Продолжая, Вы соглашаетесь на передачу своих персональных данных. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user.id}&client_id=${config.client_id}&redirect_uri=${config.redirect_uri}) \n\nВнимание! Данный чат-бот никак не связан с администрацией портала HeadHunter."
+    text: "Чтобы использовать этот метод, Вам необходимо разрешить нашему боту доступ к Вашим данным на сайте HeadHunter. Продолжая, Вы соглашаетесь на передачу своих персональных данных. [Перейдите по ссылке, чтобы передать токен боту.](https://hh.ru/oauth/authorize?response_type=code&state=${user.id}&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}) \n\nВнимание! Данный чат-бот никак не связан с администрацией портала HeadHunter."
     parseMode: "markdown"
     buttons:
       - - { text: "Отменить действие", callback_data: "go_start" }
