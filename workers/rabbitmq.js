@@ -121,6 +121,7 @@ async function sendResumeUpdateTasks() {
 
   let eligibleUser = await User.find(
     {
+      token: { access_token: { $exists: true } },
       autoUpdatedResumes: {
         $elemMatch: {
           $and: [
@@ -138,18 +139,24 @@ async function sendResumeUpdateTasks() {
   );
   eligibleUser.forEach((user) => {
     if (user.autoUpdatedResumes) {
-      user.autoUpdatedResumes.forEach((autoUpdatedResumes) => {
-        channels[`${process.env.ENV}_update_resumes`].sendToQueue(
-          `${process.env.ENV}_update_resumes`,
-          Buffer.from(
-            JSON.stringify({
-              _id: user._id,
-              id: user.id,
-              resume_id: autoUpdatedResumes.id,
-            })
-          ),
-          { deliveryMode: true }
-        );
+      user.autoUpdatedResumes.forEach((autoUpdatedResume) => {
+        if (
+          autoUpdatedResume.lastTimeUpdate < eligibleLastUpdateDate.getTime() &&
+          autoUpdatedResume.lastTryToUpdate <
+            eligibleLastTryToUpdateDate.getTime()
+        ) {
+          channels[`${process.env.ENV}_update_resumes`].sendToQueue(
+            `${process.env.ENV}_update_resumes`,
+            Buffer.from(
+              JSON.stringify({
+                _id: user._id,
+                id: user.id,
+                resume_id: autoUpdatedResume.id,
+              })
+            ),
+            { deliveryMode: true }
+          );
+        }
       });
     }
   });
@@ -176,7 +183,10 @@ async function sendResumeViewsUpdateTasks() {
   }
 
   let eligibleUser = await User.find(
-    { "lastTimeViews.0": { $exists: true } },
+    {
+      token: { access_token: { $exists: true } },
+      "lastTimeViews.0": { $exists: true },
+    },
     "id _id lastTimeViews"
   );
   eligibleUser.forEach((user) => {
