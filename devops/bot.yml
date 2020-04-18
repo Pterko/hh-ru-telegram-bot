@@ -19,7 +19,7 @@ metadata:
     cert-manager.io/cluster-issuer: hh-bot-letsencrypt
 spec:
   rules:
-  - host: dev.hhbot.pterko.ru
+  - host: ${SERVICE_DOMAIN}
     http:
       paths:
       - path: /
@@ -28,8 +28,8 @@ spec:
           servicePort: 80
   tls:
   - hosts:
-    - dev.hhbot.pterko.ru
-    secretName: dev.hhbot.pterko.ru-tls
+    - ${SERVICE_DOMAIN}
+    secretName: ${SERVICE_DOMAIN}-tls
 ---
 apiVersion: apps/v1
 kind: Deployment
