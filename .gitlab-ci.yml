@@ -53,7 +53,8 @@ deploy_dev:
 
     - |
       kubectl apply -f bot2.yml
-    - echo "bot finished"
+      kubectl patch deployment hh-bot -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      kubectl rollout status deployment/hh-bot
     #   kubectl rollout status -f bot2.yml
     #   kubectl patch -f bot2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
 
