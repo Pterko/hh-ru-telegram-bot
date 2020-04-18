@@ -121,7 +121,7 @@ async function sendResumeUpdateTasks() {
 
   let eligibleUser = await User.find(
     {
-      token: { access_token: { $exists: true } },
+      'token.access_token': { $exists: true } ,
       autoUpdatedResumes: {
         $elemMatch: {
           $and: [
@@ -184,7 +184,7 @@ async function sendResumeViewsUpdateTasks() {
 
   let eligibleUser = await User.find(
     {
-      token: { access_token: { $exists: true } },
+      'token.access_token': { $exists: true } ,
       "lastTimeViews.0": { $exists: true },
     },
     "id _id lastTimeViews"
