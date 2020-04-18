@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const logMessageSchema = new Schema({
-  userid: Number,
+  userid: {type: Number, index: true},
   event: String,
   text: String,
   object: Schema.Types.Mixed,
