@@ -50,6 +50,12 @@ async function start() {
 
 async function proceedMessage(msg) {
   try {
+    
+    if (waitingForShutdown){
+      // channel.close();
+      return setTimeout(() => process.exit(), 500);
+    }
+
     let body = msg.content.toString();
     let task = JSON.parse(body);
 
@@ -146,3 +152,12 @@ async function updateUserToken(task) {
     );
   });
 }
+
+
+let waitingForShutdown = false;
+
+process.on('SIGTERM', function onSigterm () {
+  console.info('Got SIGTERM. Graceful shutdown start', new Date().toISOString())
+
+  waitingForShutdown = true;
+})
