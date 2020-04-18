@@ -53,7 +53,7 @@ spec:
           - name: ENV
             value: ${CI_COMMIT_REF_SLUG}
           - name: CLIENT_ID
-            value: 'KTJU0OMC88I9HP6E85PL44Q10PAC73I5DOIR5HMT4ME45DKOGJPSKP2F3VRUVM34'
+            value: '${HH_CLIEND_ID}'
           - name: BOT_TOKEN
             valueFrom:
               secretKeyRef:

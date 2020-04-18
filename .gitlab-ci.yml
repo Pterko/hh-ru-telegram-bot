@@ -35,7 +35,7 @@ deploy_dev:
     entrypoint: ["/bin/sh", "-c"]
   script:
     - export SERVICE_DOMAIN=dev.hhbot.pterko.ru
-
+    - export HH_CLIEND_ID=KTJU0OMC88I9HP6E85PL44Q10PAC73I5DOIR5HMT4ME45DKOGJPSKP2F3VRUVM34
 
 
     - kubectl version
@@ -93,6 +93,7 @@ deploy_prod:
     entrypoint: ["/bin/sh", "-c"]
   script:
     - export SERVICE_DOMAIN=master.hhbot.pterko.ru
+    - export HH_CLIEND_ID=R6BTQ5B7130M7M5M5CV0EV2E3J0AMN21OOGG76K3SRTKH0K494GNMO2L039M2MG9
 
 
 
