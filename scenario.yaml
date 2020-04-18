@@ -67,10 +67,16 @@ states:
         - { text: "Управление резюме", callback_data: "resume_manage" }
       - - { text: "Настройки", callback_data: "settings" }
         - { text: "Забыть меня", callback_data: "forget_me" }
+    #  -
+    #    - { text: "Пожертвовать на работу бота", callback_data: "donate" }
     # -
     #    - {text: "Управление отслеживанием вакансий", callback_data: "vacancy_watch_menu"}
     #  -
     #    - {text: "Тестовое меню", callback_data: "test_menu"}
+  - donate:
+    name: "donate"
+    text: "Спасибо за то, что решили пожертвовать денег!"
+    
   - vacancyWatchMenuState:
     name: "vacancyWatchMenuState"
     text: "Текущие отслеживания вакансий:"

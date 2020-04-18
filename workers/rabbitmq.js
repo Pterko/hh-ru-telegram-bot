@@ -121,7 +121,7 @@ async function sendResumeUpdateTasks() {
 
   let eligibleUser = await User.find(
     {
-      token: { access_token: { $exists: true } },
+      'token.access_token': { $exists: true } ,
       autoUpdatedResumes: {
         $elemMatch: {
           $and: [
