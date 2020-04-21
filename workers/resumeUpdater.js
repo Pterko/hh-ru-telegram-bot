@@ -69,7 +69,7 @@ async function updateResume(task){
     const user = await User.findOne({_id: task._id});
     const resume = user.autoUpdatedResumes.find(x => x.id === task.resume_id);
   
-    hh.updateResume(user.token.access_token, task.resume_id, (err, statusCode) => {
+    hh.updateResume(user.token.access_token, task.resume_id, async (err, statusCode) => {
       log.info('Received statusCode:', statusCode);
       if (err) {
         log.error(
