@@ -82,12 +82,20 @@ async function updateResume(task){
           'Also, status code is ',
           statusCode
         );
+
         LogMessage.create({
           userid: user.id, 
           action: 'resume_update', 
           text: `Возникла ошибка при обновлении резюме.`, 
           object: {err, statusCode, user, task}
         })
+
+        if (err.oauth_error && err.oauth_error === 'token-revoked'){
+          log.info('Delete token');
+          user.token = undefined;
+          user.markModified("token");
+        }
+
       }
       log.info(statusCode);
       switch (statusCode) {
