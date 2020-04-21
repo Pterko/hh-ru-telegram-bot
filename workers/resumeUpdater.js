@@ -111,14 +111,16 @@ async function updateResume(task){
           })
           break;
         case 404:
-          // This resume doesn't exists anymore, we should delete it from the resumes array
-          user.autoUpdatedResumes = user.autoUpdatedResumes.filter(x => x.id != resume.id);
-          log.info('This auto-updated resume deleted');
-          LogMessage.create({
+          await LogMessage.create({
             userid: user.id, 
             action: 'resume_update', 
             text: `Удалено автообновление резюме по причине полученного статуса 404`, 
+            object: {task, resume, err, statusCode}
           })
+          // This resume doesn't exists anymore, we should delete it from the resumes array
+          user.autoUpdatedResumes = user.autoUpdatedResumes.filter(x => x.id != resume.id);
+          log.info('This auto-updated resume deleted');
+
           break;
         default:
           log.error(`Unexpected result: ${statusCode} while updating resume ${resume} of user ${user}`);
