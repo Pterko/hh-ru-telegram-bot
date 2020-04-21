@@ -116,7 +116,10 @@ async function updateUserToken(task) {
               err.error_description == "bad token" ||
               err.error_description == "token was revoked" ||
               err.error_description == "token has already been refreshed" ||
-              err.error_description == "token not found")
+              err.error_description == "token not found" ||
+              err.error_description == "password invalidated" ||
+              err.error_description == "account not found"
+              )
           ) {
             //we need to delete a token for this user
             log.info(`Delete a token for user ${user.id}`);
