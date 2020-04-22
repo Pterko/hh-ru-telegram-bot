@@ -82,8 +82,6 @@ deploy_dev:
   image: 
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
-  script:
-
   environment:
     name: dev
     url: https://dev.hhbot.pterko.ru
