@@ -149,9 +149,12 @@ async function sendResumeUpdateTasks() {
     if (user.autoUpdatedResumes) {
       user.autoUpdatedResumes.forEach((autoUpdatedResume) => {
         if (
-          autoUpdatedResume.lastTimeUpdate < eligibleLastUpdateDate.getTime() &&
-          autoUpdatedResume.lastTryToUpdate <
-            eligibleLastTryToUpdateDate.getTime()
+          (autoUpdatedResume.lastTimeUpdate <
+            eligibleLastUpdateDate.getTime() &&
+            autoUpdatedResume.lastTryToUpdate <
+              eligibleLastTryToUpdateDate.getTime()) ||
+          (!autoUpdatedResume.lastTimeUpdate ||
+            !autoUpdatedResume.lastTryToUpdate)
         ) {
           channels[`${process.env.ENV}_update_resumes`].sendToQueue(
             `${process.env.ENV}_update_resumes`,
