@@ -121,16 +121,24 @@ async function sendResumeUpdateTasks() {
 
   let eligibleUser = await User.find(
     {
-      'token.access_token': { $exists: true } ,
+      "token.access_token": { $exists: true },
       autoUpdatedResumes: {
         $elemMatch: {
-          $and: [
+          $or: [
             {
-              lastTimeUpdate: { $lt: eligibleLastUpdateDate.getTime() },
+              $and: [
+                {
+                  lastTimeUpdate: { $lt: eligibleLastUpdateDate.getTime() },
+                },
+                {
+                  lastTryToUpdate: {
+                    $lt: eligibleLastTryToUpdateDate.getTime(),
+                  },
+                },
+              ],
             },
-            {
-              lastTryToUpdate: { $lt: eligibleLastTryToUpdateDate.getTime() },
-            },
+            { lastTimeUpdate: { $exists: false } },
+            { lastTryToUpdate: { $exists: false } },
           ],
         },
       },
@@ -184,7 +192,7 @@ async function sendResumeViewsUpdateTasks() {
 
   let eligibleUser = await User.find(
     {
-      'token.access_token': { $exists: true } ,
+      "token.access_token": { $exists: true },
       "lastTimeViews.0": { $exists: true },
     },
     "id _id lastTimeViews"
