@@ -43,9 +43,10 @@ spec:
             secretKeyRef:
               name: hh-bot-secrets
               key: RABBITMQ_URL
-        image: registry.gitlab.com/pter/hh-ru-telegram-bot/token-updater:${CI_COMMIT_REF_SLUG}
+        image: registry.gitlab.com/pter/hh-ru-telegram-bot/bot:${CI_COMMIT_REF_SLUG}
         imagePullPolicy: Always
         name: hh-bot-token-updater
+        args: [ "npm", "run", "start-token-updater" ]
         ports:
         resources:
           requests:

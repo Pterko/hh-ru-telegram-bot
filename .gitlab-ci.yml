@@ -16,68 +16,72 @@ build:
     - docker build --tag $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG -f Dockerfile.bot .
     - docker push $CI_REGISTRY_IMAGE/bot:$CI_COMMIT_REF_SLUG
 
-    - docker build --tag $CI_REGISTRY_IMAGE/resume-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.resume-updater .
-    - docker push $CI_REGISTRY_IMAGE/resume-updater:$CI_COMMIT_REF_SLUG
+    # - docker build --tag $CI_REGISTRY_IMAGE/resume-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.resume-updater .
+    # - docker push $CI_REGISTRY_IMAGE/resume-updater:$CI_COMMIT_REF_SLUG
 
-    - docker build --tag $CI_REGISTRY_IMAGE/token-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.token-updater .
-    - docker push $CI_REGISTRY_IMAGE/token-updater:$CI_COMMIT_REF_SLUG
+    # - docker build --tag $CI_REGISTRY_IMAGE/token-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.token-updater .
+    # - docker push $CI_REGISTRY_IMAGE/token-updater:$CI_COMMIT_REF_SLUG
 
-    - docker build --tag $CI_REGISTRY_IMAGE/views-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.views-updater .
-    - docker push $CI_REGISTRY_IMAGE/views-updater:$CI_COMMIT_REF_SLUG
+    # - docker build --tag $CI_REGISTRY_IMAGE/views-updater:$CI_COMMIT_REF_SLUG -f Dockerfile.views-updater .
+    # - docker push $CI_REGISTRY_IMAGE/views-updater:$CI_COMMIT_REF_SLUG
   only:
     - master
     - dev
 
+
+.deploy_template: &deploy_template
+    stage: deploy
+    script:
+      - kubectl version
+      - apk add --no-cache gettext
+  
+      - kubectl delete -n $KUBE_NAMESPACE secret regcred || true
+      - kubectl create secret -n $KUBE_NAMESPACE docker-registry regcred --docker-server=registry.gitlab.com --docker-username=$CI_DEPLOY_USER --docker-password=$CI_DEPLOY_PASSWORD
+  
+      - cd devops
+      - envsubst < bot.yml > bot2.yml
+      - envsubst < resume-updater.yml > resume-updater2.yml
+      - envsubst < token-updater.yml > token-updater2.yml
+      - envsubst < views-updater.yml > views-updater2.yml
+  
+  
+  
+      - kubectl apply -f issuer.yml || true
+      
+  
+      - |
+        kubectl apply -f bot2.yml
+        kubectl patch deployment hh-bot -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+        kubectl rollout status deployment/hh-bot
+  
+      - |
+        kubectl apply -f resume-updater2.yml 
+        kubectl patch -f resume-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+        kubectl rollout status -f resume-updater2.yml
+  
+      - |
+        kubectl apply -f token-updater2.yml 
+        kubectl patch -f token-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+        kubectl rollout status -f token-updater2.yml
+  
+      - |
+        kubectl apply -f views-updater2.yml 
+        kubectl patch -f views-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+        kubectl rollout status -f views-updater2.yml
+      
+      - kubectl get all
+  
+          
+
 deploy_dev:
+  <<: *deploy_template
   stage: deploy
+  variables: 
+    SERVICE_DOMAIN: "dev.hhbot.pterko.ru"
+    HH_CLIEND_ID: "KTJU0OMC88I9HP6E85PL44Q10PAC73I5DOIR5HMT4ME45DKOGJPSKP2F3VRUVM34"
   image: 
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
-  script:
-    - export SERVICE_DOMAIN=dev.hhbot.pterko.ru
-    - export HH_CLIEND_ID=KTJU0OMC88I9HP6E85PL44Q10PAC73I5DOIR5HMT4ME45DKOGJPSKP2F3VRUVM34
-
-
-    - kubectl version
-    - apk add --no-cache gettext
-
-    - kubectl delete -n $KUBE_NAMESPACE secret regcred || true
-    - kubectl create secret -n $KUBE_NAMESPACE docker-registry regcred --docker-server=registry.gitlab.com --docker-username=$CI_DEPLOY_USER --docker-password=$CI_DEPLOY_PASSWORD
-
-    - cd devops
-    - envsubst < bot.yml > bot2.yml
-    - envsubst < resume-updater.yml > resume-updater2.yml
-    - envsubst < token-updater.yml > token-updater2.yml
-    - envsubst < views-updater.yml > views-updater2.yml
-
-
-
-    - kubectl apply -f issuer.yml || true
-    
-
-    - |
-      kubectl apply -f bot2.yml
-      kubectl patch deployment hh-bot -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status deployment/hh-bot
-    #   kubectl rollout status -f bot2.yml
-    #   kubectl patch -f bot2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-
-    - |
-      kubectl apply -f resume-updater2.yml 
-      kubectl patch -f resume-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status -f resume-updater2.yml
-
-    - |
-      kubectl apply -f token-updater2.yml 
-      kubectl patch -f token-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status -f token-updater2.yml
-
-    - |
-      kubectl apply -f views-updater2.yml 
-      kubectl patch -f views-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status -f views-updater2.yml
-    
-    - kubectl get all
   environment:
     name: dev
     url: https://dev.hhbot.pterko.ru
@@ -85,59 +89,16 @@ deploy_dev:
     - dev
 
 
-        
+
 deploy_prod:
+  <<: *deploy_template
   stage: deploy
+  variables:
+    SERVICE_DOMAIN: "master.hhbot.pterko.ru"
+    HH_CLIEND_ID: "R6BTQ5B7130M7M5M5CV0EV2E3J0AMN21OOGG76K3SRTKH0K494GNMO2L039M2MG9"
   image: 
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
-  script:
-    - export SERVICE_DOMAIN=master.hhbot.pterko.ru
-    - export HH_CLIEND_ID=R6BTQ5B7130M7M5M5CV0EV2E3J0AMN21OOGG76K3SRTKH0K494GNMO2L039M2MG9
-
-
-
-
-    - kubectl version
-    - apk add --no-cache gettext
-
-    - kubectl delete -n $KUBE_NAMESPACE secret regcred || true
-    - kubectl create secret -n $KUBE_NAMESPACE docker-registry regcred --docker-server=registry.gitlab.com --docker-username=$CI_DEPLOY_USER --docker-password=$CI_DEPLOY_PASSWORD
-
-    - cd devops
-    - envsubst < bot.yml > bot2.yml
-    - envsubst < resume-updater.yml > resume-updater2.yml
-    - envsubst < token-updater.yml > token-updater2.yml
-    - envsubst < views-updater.yml > views-updater2.yml
-
-
-
-    - kubectl apply -f issuer.yml || true
-    
-
-    - |
-      kubectl apply -f bot2.yml
-      kubectl patch deployment hh-bot -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status deployment/hh-bot
-    #   kubectl rollout status -f bot2.yml
-    #   kubectl patch -f bot2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-
-    - |
-      kubectl apply -f resume-updater2.yml 
-      kubectl patch -f resume-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status -f resume-updater2.yml
-
-    - |
-      kubectl apply -f token-updater2.yml 
-      kubectl patch -f token-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status -f token-updater2.yml
-
-    - |
-      kubectl apply -f views-updater2.yml 
-      kubectl patch -f views-updater2.yml -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      kubectl rollout status -f views-updater2.yml
-    
-    - kubectl get all
   environment:
     name: master
     url: https://master.hhbot.pterko.ru

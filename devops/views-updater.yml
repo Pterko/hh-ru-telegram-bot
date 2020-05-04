@@ -43,9 +43,10 @@ spec:
             secretKeyRef:
               name: hh-bot-secrets
               key: RABBITMQ_URL
-        image: registry.gitlab.com/pter/hh-ru-telegram-bot/views-updater:${CI_COMMIT_REF_SLUG}
+        image: registry.gitlab.com/pter/hh-ru-telegram-bot/bot:${CI_COMMIT_REF_SLUG}
         imagePullPolicy: Always
         name: hh-bot-views-updater
+        args: [ "npm", "run", "start-views-updater" ]
         ports:
         resources:
           requests:
