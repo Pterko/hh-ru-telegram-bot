@@ -15,6 +15,7 @@ class messageDispatcher {
   constructor(bot, scenarioHandler) {
     this.bot = bot;
     this.scenarioHandler = scenarioHandler;
+
     let str;
     try {
       str = fs.readFileSync('./scenario.yaml', { encoding: 'utf-8' });
@@ -24,9 +25,7 @@ class messageDispatcher {
       log.error(ex.message);
       process.exit(1337);
     }
-    // console.log(str);
 
-    // log.info("Loaded scenario:", this.scenario );
     log.info('Loaded scenario');
 
     this.bot.on('message', this.messageHandler.bind(this));
@@ -79,9 +78,9 @@ class messageDispatcher {
       }
 
       if (typeof this.scenarioHandler[dataHandler.handlerFunction] === 'function') {
-        if (dataHandler.handlerFunctionAsync == true) {
+        if (dataHandler.handlerFunctionAsync === true) {
           promises.push(
-            new Promise((resolve, reject) => {
+            new Promise(resolve => {
               this.scenarioHandler[dataHandler.handlerFunction](user, msg, callbackAnswer => {
                 log.info('CallbackAnswer:', callbackAnswer);
                 const localPromises = [];
@@ -91,7 +90,7 @@ class messageDispatcher {
                 if (callbackAnswer.showAlert) {
                   log.info('Try to answer with alert');
                   localPromises.push(
-                    new Promise((localResolve, localReject) => {
+                    new Promise(localResolve => {
                       this.bot.answerCallbackQuery(msg.id, callbackAnswer.showAlert, false).then(
                         result => {
                           log.info('CallbackQuery result: ', result);
@@ -112,7 +111,7 @@ class messageDispatcher {
           );
         } else {
           promises.push(
-            new Promise((resolve, reject) => {
+            new Promise(resolve => {
               const callbackAnswer = this.scenarioHandler[dataHandler.handlerFunction](user, msg);
               log.info('CallbackAnswer:', callbackAnswer);
               const localPromises = [];
@@ -122,7 +121,7 @@ class messageDispatcher {
               if (callbackAnswer.showAlert) {
                 log.info('Try to answer with alert');
                 localPromises.push(
-                  new Promise((localResolve, localReject) => {
+                  new Promise(localResolve => {
                     this.bot.answerCallbackQuery(msg.id, callbackAnswer.showAlert, false).then(result => {
                       log.info('CallbackQuery result: ', result);
                       localResolve();
@@ -146,16 +145,16 @@ class messageDispatcher {
         () => {
           log.info('All promisified successfully');
           const promise = user.save();
-          promise.then(
-            result => {
+          promise
+            .then(() => {
               log.info('User saved');
-              if (!(dataHandler.updatePreviousMessage == false)) {
+              if (!(dataHandler.updatePreviousMessage === false)) {
                 this.updateLastMessageAccordingToState(msg, user);
               }
-            }
-          ).catch(error => {
-            log.error('Error while saving user:', error, user);
-          });
+            })
+            .catch(error => {
+              log.error('Error while saving user:', error, user);
+            });
         },
         error => {
           log.error('Error while promisified last promises:', error);
@@ -202,14 +201,16 @@ class messageDispatcher {
       const stateObject = this.findStateByName(user.state);
       log.info('Entered in emitMessage func, state:', stateObject);
 
-      if (options == undefined) {
+      if (options === undefined) {
         options = {};
       }
 
       let responseText = '';
       if (text) {
+        // eslint-disable-next-line no-eval
         responseText = eval(`\`${text}\``);
       } else {
+        // eslint-disable-next-line no-eval
         responseText = eval(`\`${stateObject.text}\``);
       }
 
@@ -230,7 +231,7 @@ class messageDispatcher {
         options.parse_mode = stateObject.parseMode;
       }
 
-      if (update == true) {
+      if (update === true) {
         options.chat_id = user.id;
         options.message_id = user.lastMessageId;
         this.bot.editMessageText(responseText, options);
@@ -243,17 +244,19 @@ class messageDispatcher {
         log.info('Send message with options:', options);
         this.bot.sendMessage(user.id, responseText, options).then(result => {
           log.info('New message sended, result:', result);
-          user.lastMessageId = parseInt(result.message_id);
+          user.lastMessageId = parseInt(result.message_id, 10);
           user.markModified('lastMessageId');
 
-          user.save().then((result, result1) => {
-            log.info('res1', result);
+          user.save().then((resultLocal, result1) => {
+            log.info('res1', resultLocal);
             log.info('res2', result1);
           });
           log.info(user);
         });
       }
-    } catch (ex) {}
+    } catch (ex) {
+      log.info('Error in emitMessage:', ex);
+    }
   }
 
   // receives only text-like messages from user
@@ -282,7 +285,7 @@ class messageDispatcher {
     if (stateObject.textExpected) {
       // accept text and check, that function-handler exists
       if (
-        stateObject.textHandlerFunction != 'undefined' &&
+        stateObject.textHandlerFunction !== 'undefined' &&
         typeof this.scenarioHandler[stateObject.textHandlerFunction] === 'function'
       ) {
         // just call this function
@@ -293,7 +296,7 @@ class messageDispatcher {
             this.textMessageCallbackHandler.bind(this)
           );
         } else {
-          const functionResult = this.scenarioHandler[stateObject.textHandlerFunction](user, msg.text);
+          this.scenarioHandler[stateObject.textHandlerFunction](user, msg.text);
         }
       } else {
         log.error(
@@ -314,11 +317,11 @@ class messageDispatcher {
       // TODO: think about removing eval
       let responseText;
       try {
+        // eslint-disable-next-line no-eval
         responseText = eval(`\`${stateObject.text}\``);
       } catch (ex) {
         log.info('Error:', ex);
-        responseText =
-          'Возникла внутренняя ошибка при генерации текста сообщения. Приносим свои извинения, попробуйте вернуться в главное меню. Информация для отладки: ' + ex.message;
+        responseText = `Возникла внутренняя ошибка при генерации текста сообщения. Приносим свои извинения, попробуйте вернуться в главное меню. Информация для отладки: ${ex.message}`;
       }
       this.emitMessage(user, responseText, options, false);
     }
@@ -335,8 +338,8 @@ class messageDispatcher {
     });
   }
 
-  foreignEventReceiver(user_id, options) {
-    this.getUserObjectFromMsg({ from: { id: user_id } }, (err, user) => {
+  foreignEventReceiver(userId, options) {
+    this.getUserObjectFromMsg({ from: { id: userId } }, (err, user) => {
       log.info('User received in foreignEventReceiver');
       if (options.setState) {
         this.changeUserState(user, options.setState);
@@ -345,7 +348,7 @@ class messageDispatcher {
   }
 
   changeUserState(user, newState) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       user.state = newState;
       log.info(`User ${user.id} state changed to ${newState}`);
       log.info(user);
@@ -356,18 +359,18 @@ class messageDispatcher {
       if (typeof this.scenarioHandler[stateObject.onEnterHandlerFunction] === 'function') {
         if (stateObject.onEnterHandlerFunctionAsync) {
           log.info('Runned async version of onEnter function');
-          this.scenarioHandler[stateObject.onEnterHandlerFunction](user, (user, callbackAnswer) => {
-            log.info('useeeeer:', user);
-            user.save();
+          this.scenarioHandler[stateObject.onEnterHandlerFunction](user, localUser => {
+            log.info('useeeeer:', localUser);
+            localUser.save();
             if (stateObject.newMessageOnEnter) {
-              this.emitMessage(user, stateObject.text, {}, false);
+              this.emitMessage(localUser, stateObject.text, {}, false);
             } else {
-              this.emitMessage(user, stateObject.text, {}, true);
+              this.emitMessage(localUser, stateObject.text, {}, true);
             }
             resolve();
           });
         } else {
-          const functionResult = this.scenarioHandler[stateObject.onEnterHandlerFunction](user);
+          this.scenarioHandler[stateObject.onEnterHandlerFunction](user);
           if (stateObject.newMessageOnEnter) {
             this.emitMessage(user, stateObject.text, {}, false);
           } else {
@@ -389,13 +392,13 @@ class messageDispatcher {
   }
 
   findStateByName(name) {
-    return this.scenario.states.find(x => x.name == name);
+    return this.scenario.states.find(x => x.name === name);
   }
 
   findDataHandlerByName(name) {
-    let dataHandler = this.scenario.dataHandlers.find(x => x.name == name);
+    let dataHandler = this.scenario.dataHandlers.find(x => x.name === name);
     // so, if we don't find dataHandler by name, try to find it by param
-    if (dataHandler == undefined) {
+    if (dataHandler === undefined) {
       log.info('Try to find dataHandler by regexp');
       let appendedValue;
       dataHandler = this.scenario.dataHandlers.find(x => {
@@ -404,6 +407,7 @@ class messageDispatcher {
           log.info(newName);
           log.warn(name.match(newName));
           if (name.match(newName)) {
+            // eslint-disable-next-line prefer-destructuring
             appendedValue = name.match(newName)[1];
             return true;
           }
@@ -429,7 +433,7 @@ class messageDispatcher {
         return callback(err);
       }
       console.log(`Users arr: ${user}`);
-      if (user == undefined && user == null) {
+      if (user === undefined && user == null) {
         log.info('Create new user');
         const newUserObject = {
           id: msg.from.id,
@@ -438,16 +442,15 @@ class messageDispatcher {
           username: msg.from.username,
           state: 'start',
         };
-        User.create(newUserObject, (err, user) => {
+        User.create(newUserObject, (localErr, localUser) => {
           if (err) {
-            log.warn(err);
-            return callback(err);
+            log.warn(localErr);
+            return callback(localErr);
           }
-          return callback(null, user);
+          return callback(null, localUser);
         });
-      } else {
-        return callback(null, user);
       }
+      return callback(null, user);
     });
   }
 
@@ -457,11 +460,12 @@ class messageDispatcher {
         log.error('Error while gettingAllUsers:', err);
         return callback(err);
       }
-      callback(null, users);
+      return callback(null, users);
     });
   }
 
   getRandomUsersChunk(callback) {
+    // eslint-disable-next-line consistent-return
     User.aggregate([{ $sample: { size: 50 } }]).exec((err, users) => {
       if (err) {
         log.error('Error while getRandomUsersChunk:', err);
@@ -469,8 +473,8 @@ class messageDispatcher {
       }
       // we need to turn pure objects into NORMAL objects
       const ids = users.map(x => x._id);
-      User.find({ _id: { $in: ids } }).exec((err, users) => {
-        callback(null, users);
+      User.find({ _id: { $in: ids } }).exec((localErr, localUsers) => {
+        callback(null, localUsers);
       });
     });
   }

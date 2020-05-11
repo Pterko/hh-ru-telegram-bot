@@ -1,33 +1,19 @@
 const log4js = require('log4js');
-const asyncModule = require('async');
 
 const log = log4js.getLogger('HHTELEGRAMBOT');
-const scenarioHandler = require('./messageDispatcher.js');
+const ScenarioHandler = require('./messageDispatcher.js');
 const hh = require('../hhApi');
 
 class scenarioModule {
   constructor(bot) {
     log.info('Initialize bot...');
     this.bot = bot;
-    this.handler = new scenarioHandler(bot, this);
-
-    // setTimeout(this.updateResumesViews.bind(this), 1000 * 30);
-
-  }
-
-
-
-
-  actionsTimer() {
-    // this.updateUserTokens();
-
-    // setTimeout(this.updateResumes.bind(this), 1000 * 40);
-    // setTimeout(this.updateResumesViews.bind(this), 1000 * 80);
+    this.handler = new ScenarioHandler(bot, this);
   }
 
   vacancySearchTextHandler(user, text, callback) {
     log.info(text);
-    var callbackResponse = {
+    const callbackResponse = {
       setState: 'vacancySearchState',
     };
     user.storage.search.vacancySearchQuery = text;
@@ -36,11 +22,11 @@ class scenarioModule {
 
   // this method should return buttons array
   vacancySearchButtonsGenerator(user) {
-    let buttonsArrayLine = [];
+    const buttonsArrayLine = [];
     if (user.storage.search.page > 0) {
       buttonsArrayLine.push({ text: 'Предыдущая страница', callback_data: 'search_prev_page' });
     }
-    if (user.storage.search.page != user.storage.search.pages - 1) {
+    if (user.storage.search.page !== user.storage.search.pages - 1) {
       buttonsArrayLine.push({ text: 'Следующая страница', callback_data: 'search_next_page' });
     }
     buttonsArrayLine.push({ text: 'В начало', callback_data: 'go_start' });
@@ -49,22 +35,10 @@ class scenarioModule {
     return [buttonsArrayLine];
   }
 
-  vacancyWatchMenuButtonsGenerator(user) {
-    let buttonsArray = [];
-    buttonsArray.push([{ text: 'Добавить запрос для отслеживания', callback_data: 'vacancy_watch_add_request' }]);
-
-    buttonsArray.push([{ text: 'Запрос: "php программист"', callback_data: '123test' }]);
-
-    buttonsArray.push([{ text: 'В главное меню', callback_data: 'go_start' }]);
-
-    log.info('Buttons line generated:', buttonsArray);
-    return buttonsArray;
-  }
-
   resumeSelectButtonsGenerator(user) {
-    let buttonsArray = [];
-    for (let i = 0; i < user.storage.resume.resumes.length; i++) {
-      let resume = JSON.parse(user.storage.resume.resumes[i]);
+    const buttonsArray = [];
+    for (let i = 0; i < user.storage.resume.resumes.length; i += 1) {
+      const resume = JSON.parse(user.storage.resume.resumes[i]);
       buttonsArray.push([{ text: `№${i + 1} - ${resume.title}`, callback_data: `select_resume_${i}` }]);
     }
     buttonsArray.push([{ text: 'В начало', callback_data: 'go_start' }]);
@@ -73,16 +47,16 @@ class scenarioModule {
   }
 
   specificResumeButtonsGenerator(user) {
-    let buttonsArray = [];
-    let selectedResume = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]);
-    //create button for "auto-update enable/disable"
-    if (user.autoUpdatedResumes.find(x => x.id == selectedResume.id)) {
+    const buttonsArray = [];
+    const selectedResume = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]);
+    // create button for "auto-update enable/disable"
+    if (user.autoUpdatedResumes.find(x => x.id === selectedResume.id)) {
       buttonsArray.push([{ text: 'Выключить автообновление резюме', callback_data: 'resume_autoupdate_disable' }]);
     } else {
       buttonsArray.push([{ text: 'Включить автообновление резюме', callback_data: 'resume_autoupdate_enable' }]);
     }
-    //create button for "resume views monitoring enable/disable"
-    if (user.lastTimeViews.find(x => x.id == selectedResume.id)) {
+    // create button for "resume views monitoring enable/disable"
+    if (user.lastTimeViews.find(x => x.id === selectedResume.id)) {
       buttonsArray.push([
         { text: 'Выключить мониторинг просмотров резюме', callback_data: 'resume_monitoring_disable' },
       ]);
@@ -100,12 +74,12 @@ class scenarioModule {
 
   resumeUpdateHandle(user, msg, callback) {
     log.info("We're into resumeUpdateHandle function");
-    let selectedResume = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]);
-    if (selectedResume.status.id == 'published') {
+    const selectedResume = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]);
+    if (selectedResume.status.id === 'published') {
       hh.updateResume(user.token.access_token, selectedResume.id, (err, res) => {
-        log.info('UpdateResumeResult:' + res);
-        if (res == 204) {
-          let autoUpdatedResume = user.autoUpdatedResumes.find(x => x.id == selectedResume.id);
+        log.info('UpdateResumeResult:', res);
+        if (res === 204) {
+          const autoUpdatedResume = user.autoUpdatedResumes.find(x => x.id === selectedResume.id);
           if (autoUpdatedResume) {
             autoUpdatedResume.lastTimeUpdate = Date.now();
           }
@@ -113,26 +87,28 @@ class scenarioModule {
             showAlert: 'Резюме обновлено',
           });
         }
-        if (res == 429) {
+        if (res === 429) {
           return callback({
             showAlert: 'Еще рано для обновления, попробуйте позже',
           });
         }
-      });
-    } else {
-      return callback({
-        showAlert: 'Данное резюме еще не опубликовано, не могу обновить его!',
+        return callback({
+          showAlert: 'Неизвестная ошибка',
+        });
       });
     }
+    return callback({
+      showAlert: 'Данное резюме еще не опубликовано, не могу обновить его!',
+    });
   }
 
   // this method should return buttons array
   resumeViewsButtonsGenerator(user) {
-    let buttonsArrayLine = [];
+    const buttonsArrayLine = [];
     if (user.storage.resume.viewsShow.page > 0) {
       buttonsArrayLine.push({ text: 'Предыдущая страница', callback_data: 'resume_views_prev_page' });
     }
-    if (user.storage.resume.viewsShow.page != user.storage.resume.viewsShow.pages - 1) {
+    if (user.storage.resume.viewsShow.page !== user.storage.resume.viewsShow.pages - 1) {
       buttonsArrayLine.push({ text: 'Следующая страница', callback_data: 'resume_views_next_page' });
     }
     buttonsArrayLine.push({ text: 'К резюме', callback_data: 'go_specific_resume_menu' });
@@ -148,12 +124,12 @@ class scenarioModule {
   }
 
   viewsShowNextPageEvent(user, msg, callback) {
-    user.storage.resume.viewsShow.page++;
+    user.storage.resume.viewsShow.page += 1;
     this.generateViewsForResumeViewsShow(user, callback);
   }
 
   viewsShowPrevPageEvent(user, msg, callback) {
-    user.storage.resume.viewsShow.page--;
+    user.storage.resume.viewsShow.page -= 1;
     this.generateViewsForResumeViewsShow(user, callback);
   }
 
@@ -172,12 +148,12 @@ class scenarioModule {
         user.storage.resume.viewsShow.page = json.page;
         user.storage.resume.viewsShow.pages = json.pages;
         user.storage.resume.viewsShow.found = json.found;
-        //now we need to generate String-list for message
+        // now we need to generate String-list for message
         log.info(json);
-        var viewsStr = '';
-        for (let view of json.items) {
-          let dat_norm = new Date(view.created_at);
-          var options = {
+        let viewsStr = '';
+        for (const view of json.items) {
+          const datNorm = new Date(view.created_at);
+          const options = {
             year: 'numeric',
             month: 'numeric',
             day: 'numeric',
@@ -187,7 +163,7 @@ class scenarioModule {
             second: 'numeric',
           };
 
-          viewsStr += dat_norm.toLocaleString('ru-RU', options) + ' | ';
+          viewsStr += `${datNorm.toLocaleString('ru-RU', options)} | `;
 
           viewsStr += `[${view.employer.name}](${view.employer.alternate_url})`;
 
@@ -207,19 +183,19 @@ class scenarioModule {
   }
 
   searchNextPageEvent(user, msg, callback) {
-    user.storage.search.page++;
+    user.storage.search.page += 1;
     this.generateVacanciesForUserSearch(user, callback);
   }
 
   searchPrevPageEvent(user, msg, callback) {
-    user.storage.search.page--;
+    user.storage.search.page -= 1;
     this.generateVacanciesForUserSearch(user, callback);
   }
 
-  enableResumeAutoupdate(user, msg) {
+  enableResumeAutoupdate(user) {
     log.info('We are in enableResumeAutoupdate function');
-    let currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
-    if (user.autoUpdatedResumes.find(x => x.id == currentResumeId)) {
+    const currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
+    if (user.autoUpdatedResumes.find(x => x.id === currentResumeId)) {
       return {
         showAlert: 'Автообновление уже включено!',
       };
@@ -231,10 +207,10 @@ class scenarioModule {
     };
   }
 
-  disableResumeAutoupdate(user, msg) {
+  disableResumeAutoupdate(user) {
     log.info('We are in disableResumeAutoupdate function');
-    let currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
-    let resumeIndex = user.autoUpdatedResumes.findIndex(x => x.id == currentResumeId);
+    const currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
+    const resumeIndex = user.autoUpdatedResumes.findIndex(x => x.id === currentResumeId);
     log.info('Index of deleted element:', resumeIndex);
     if (resumeIndex > -1) {
       user.autoUpdatedResumes.splice(resumeIndex, 1);
@@ -245,10 +221,10 @@ class scenarioModule {
     };
   }
 
-  enableResumeMonitoring(user, msg) {
+  enableResumeMonitoring(user) {
     log.info('We are in enableResumeMonitoring function');
-    let currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
-    if (user.lastTimeViews.find(x => x.id == currentResumeId)) {
+    const currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
+    if (user.lastTimeViews.find(x => x.id === currentResumeId)) {
       return {
         showAlert: 'Мониторинг уже включен!',
       };
@@ -263,14 +239,14 @@ class scenarioModule {
     };
   }
 
-  disableResumeMonitoring(user, msg) {
+  disableResumeMonitoring(user) {
     log.info('We are in disableResumeMonitoring function');
-    let currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
-    let resumeIndex = user.lastTimeViews.findIndex(x => x.id == currentResumeId);
+    const currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
+    const resumeIndex = user.lastTimeViews.findIndex(x => x.id === currentResumeId);
     log.info('Index of deleted element:', resumeIndex);
     if (resumeIndex > -1) {
       user.lastTimeViews.splice(resumeIndex, 1);
-      //user.markModified('storage');
+      // user.markModified('storage');
     }
     log.info('User after splice:', user);
     return {
@@ -292,16 +268,16 @@ class scenarioModule {
         user.storage.search.page = json.page;
         user.storage.search.pages = json.pages;
         user.storage.search.found = json.found;
-        //now we need to generate String-list for message
-        var vacancyStr = '';
-        for (let vacancy of json.items) {
-          vacancyStr += '[' + vacancy.name + '](' + vacancy.alternate_url + ')| ';
+        // now we need to generate String-list for message
+        let vacancyStr = '';
+        for (const vacancy of json.items) {
+          vacancyStr += `[${vacancy.name}](${vacancy.alternate_url})| `;
           if (vacancy.salary != null) {
             if (vacancy.salary.from != null) {
-              vacancyStr += ' от ' + vacancy.salary.from + vacancy.salary.currency;
+              vacancyStr += ` от ${vacancy.salary.from}${vacancy.salary.currency}`;
             }
             if (vacancy.salary.to != null) {
-              vacancyStr += ' до ' + vacancy.salary.to + vacancy.salary.currency;
+              vacancyStr += ` до ${vacancy.salary.to}${vacancy.salary.currency}`;
             }
           } else {
             vacancyStr += 'Зарплата не указана';
@@ -309,7 +285,7 @@ class scenarioModule {
           vacancyStr += '\n';
           if (vacancy.snippet != null) {
             if (vacancy.snippet.requirement != null) {
-              vacancyStr += 'Требования: ' + vacancy.snippet.requirement + '\n';
+              vacancyStr += `Требования: ${vacancy.snippet.requirement}\n`;
             }
           }
           vacancyStr += '\n';
@@ -330,45 +306,45 @@ class scenarioModule {
   }
 
   resumeManageSelect(user, msg, callback) {
-    //in this method we need to check token existence
+    // in this method we need to check token existence
     log.info("We're in resume manage select function ", user.token);
     log.info(user.token.length);
-    let callbackAnswer = {};
-    if (user.token.access_token == null || user.token.access_token == undefined) {
+    const callbackAnswer = {};
+    if (user.token.access_token == null || user.token.access_token === undefined) {
       log.info('We in no token branch');
       // change state to awaitTokenState
       callbackAnswer.setState = 'awaitTokenState';
       return callback(callbackAnswer);
-    } else {
-      //check that user have resumes and token is working
-      hh.getMyResumes(user.token.access_token, (err, json) => {
-        if (err) {
-          //return bot.sendMessage(user.id, "Возникла ошибка при выполнении запроса:", err);
-          log.error('Возникла ошибка при выполнении запроса(resumeManageSelect):', err);
-          return callback({
-            showAlert: 'Возникла ошибка при выполнении запроса:' + err,
-          });
-        }
-        let resumes = json.items;
-        if (resumes.length == 0) {
-          callbackAnswer.setState = 'noResumesState';
-          return callback(callbackAnswer);
-        }
-        user.storage.resume.resumes = [];
-        // if we have resumes, prepare info for button and text-generators
-        for (let i = 0; i < resumes.length; i++) {
-          user.storage.resume.resumes.push(JSON.stringify(resumes[i]));
-        }
-        callbackAnswer.setState = 'selectResumeState';
-        return callback(callbackAnswer);
-      });
     }
+    // check that user have resumes and token is working
+    hh.getMyResumes(user.token.access_token, (err, json) => {
+      if (err) {
+        // return bot.sendMessage(user.id, "Возникла ошибка при выполнении запроса:", err);
+        log.error('Возникла ошибка при выполнении запроса(resumeManageSelect):', err);
+        return callback({
+          showAlert: `Возникла ошибка при выполнении запроса:${err}`,
+        });
+      }
+      const resumes = json.items;
+      if (resumes.length === 0) {
+        callbackAnswer.setState = 'noResumesState';
+        return callback(callbackAnswer);
+      }
+      user.storage.resume.resumes = [];
+      // if we have resumes, prepare info for button and text-generators
+      for (let i = 0; i < resumes.length; i += 1) {
+        user.storage.resume.resumes.push(JSON.stringify(resumes[i]));
+      }
+      callbackAnswer.setState = 'selectResumeState';
+      return callback(callbackAnswer);
+    });
+    return callback({ setState: 'awaitTokenState' });
   }
 
-  resumeAnalyticsHandler(user, msg) {
+  resumeAnalyticsHandler(user) {
     // get id of current resume
-    let current_resume_id = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
-    let analytics = user.storage.resume.resume_analytics.find(x => x.resume_id == current_resume_id);
+    const currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
+    const analytics = user.storage.resume.resume_analytics.find(x => x.resume_id === currentResumeId);
     if (!analytics) {
       return { setState: 'analyticsNotReadyState' };
     }
@@ -383,7 +359,7 @@ class scenarioModule {
     } else {
       user.storage.analytics.comparison_word = 'реже';
       log.info('Before comparison_percent: ', user.storage.analytics.comparison_percent);
-      user.storage.analytics.comparison_percent = 100 - parseInt(user.storage.analytics.comparison_percent);
+      user.storage.analytics.comparison_percent = 100 - parseInt(user.storage.analytics.comparison_percent, 10);
       log.info('Modified comparison_percent: ', user.storage.analytics.comparison_percent);
     }
     return { setState: 'analyticsState' };
@@ -394,268 +370,78 @@ class scenarioModule {
     log.info("I'M INTO HANDLE RESUME SELECT");
     if (msg.value) {
       user.storage.resume.selectedResumeOffset = msg.value;
-      //so, now we need to change our state specific resume dialog
+      // so, now we need to change our state specific resume dialog
       return { setState: 'specificResumeState' };
     }
     return {};
   }
 
-  async acceptNotification(notification){
-    console.log('acceptNotification', notification);
-    if (notification.payload.action === "fakeDataMessage"){
+  async acceptNotification(notification) {
+    log.info('acceptNotification', notification);
+    if (notification.payload.action === 'fakeDataMessage') {
       this.handler.getUserObjectFromMsg({ from: { id: notification.user.id } }, (err, user) => {
-        this.handler.sendFakeDataMessage(notification.payload.dataMessage, user)
+        this.handler.sendFakeDataMessage(notification.payload.dataMessage, user);
       });
     }
   }
 
-  acceptCode(code, user_id) {
-    //so, in this method we accept code from user and try to receive normal hh.ru api code
-    log.info('Received code ', code, ' for user ', user_id);
-    this.handler.getUserObjectFromMsg({ from: { id: user_id } }, (err, user) => {
+  acceptCode(code, userId) {
+    // so, in this method we accept code from user and try to receive normal hh.ru api code
+    log.info('Received code ', code, ' for user ', userId);
+    this.handler.getUserObjectFromMsg({ from: { id: userId } }, (getUserErr, user) => {
       log.info('User: ', user);
 
       user.token.access_token = '123';
       hh.getAccessTokenByCode(code, (err, json) => {
         if (err) {
-          log.info('Error while getting token:',err, json, code);
+          log.info('Error while getting token:', err, json, code);
           // bot.sendMessage(user_id, 'Токен неправильный, попробуйте еще.');
           return;
         }
         user.token = json;
-        //user.token.expires_at = Date.now() + parseInt(user.token.expires_in);
-        user.token.expires_at = Math.round(Date.now() / 1000) + parseInt(json.expires_in);
+        // user.token.expires_at = Date.now() + parseInt(user.token.expires_in);
+        user.token.expires_at = Math.round(Date.now() / 1000) + parseInt(json.expires_in, 10);
         log.warn(user);
         user.markModified('token');
         user.save(result => {
           log.warn(result);
           log.info('User saved, lets move to event receiver');
-          this.handler.foreignEventReceiver(user_id, { setState: 'tokenReceivedSuccess' });
-        })
+          this.handler.foreignEventReceiver(userId, { setState: 'tokenReceivedSuccess' });
+        });
       });
-    });
-  }
-
-  updateResumes(finishCallback) {
-    this.handler.getRandomUsersChunk((err, users) => {
-      if (err) {
-        log.error('Error while getting all users:', err);
-        return;
-      }
-      log.info(`Received users array for resume updates. We have ${users.length} users.`);
-      var queue = asyncModule.queue(this.updateResumeTaskFunction, 1);
-
-      for (let user of users) {
-        if (user.autoUpdatedResumes.length == 0) {
-          // useless user, don't have resumes that we can update
-          continue;
-        }
-
-        if (!user.token) {
-          // useless user, he don't have a token
-          continue;
-        }
-
-        for (let resume of user.autoUpdatedResumes) {
-          if (resume.lastTimeUpdate) {
-            //check that 4 hours from last update elapsed
-            if (Date.now() - resume.lastTimeUpdate < 14400 * 1000) {
-              log.info(`Don't update resume ${resume.id} , because 4 hours from last update don't elapsed`);
-              continue;
-            }
-          }
-          if (resume.lastTryToUpdate) {
-            //check that 10 minutes from last attempt elapsed
-            if (Date.now() - resume.lastTryToUpdate < 600 * 1000) {
-              log.info(`Don't update resume ${resume.id}, because 10 minutes from last attempt don't elapsed`);
-              continue;
-            }
-          }
-
-          log.info(`We're about to update resume ${resume.id} of user ${user.id}`);
-          queue.push({ user: user, resume: resume }, (err, statusCode) => {
-            log.info('Received statusCode:', statusCode);
-            if (err) {
-              log.error(
-                'Error ',
-                err,
-                ' while processing user ',
-                user,
-                ' and resume ',
-                resume,
-                'Also, status code is ',
-                statusCode
-              );
-            }
-            log.info(statusCode);
-            switch (statusCode) {
-              case 429:
-                resume.lastTryToUpdate = Date.now();
-                log.info('lastTryToUpdate updated');
-                break;
-              case 204:
-                resume.lastTimeUpdate = Date.now();
-                log.info('lastTimeUpdate updated');
-                break;
-              default:
-                log.error(`Unexpected result: ${statusCode} while updating resume ${resume} of user ${user}`);
-            }
-            log.info(`Work with user ${user.id} ended.`);
-            user.save();
-          });
-        }
-      }
     });
   }
 
   updateResumeTaskFunction(task, callback) {
     hh.updateResume(task.user.token.access_token, task.resume.id, (err, statusCode) => {
       if (err) {
-        log.warn('Received error while updating ' + task.user.id + ' resume:', err);
+        log.warn(`Received error while updating ${task.user.id} resume:`, err);
         return callback(err, statusCode);
       }
       log.info(
-        'Auto-updating of ' +
-          task.user.first_name +
-          ' resume ' +
-          task.resume.id +
-          ' finished with code ' +
-          statusCode +
-          ' and error ' +
-          err
+        `Auto-updating of ${task.user.first_name} resume ${task.resume.id} finished with code ${statusCode} and error ${err}`
       );
-      callback(null, statusCode);
-    });
-  }
-
-  updateResumesViews(finishCallback) {
-    this.handler.getRandomUsersChunk((err, users) => {
-      if (err) {
-        log.err('Error while getting all users:', err);
-        return;
-      }
-      log.info(`Received users array. We have ${users.length} users.`);
-      var queue = asyncModule.queue(this.updateResumeViewsTaskFunction, 1);
-
-      for (let user of users) {
-        if (user.lastTimeViews.length == 0) {
-          // useless user, don't have resume, that needed to be monitored
-          continue;
-        }
-
-        if (!user.token) {
-          // useless user, he don't have a token
-          continue;
-        }
-
-        queue.push({ user: user }, (err, result) => {
-          if (err) {
-            log.error('Error ', err, ' while processing user ', user);
-            return;
-          }
-          log.info(`Received result from hhApi: ${result}`);
-          if (!result) return;
-
-          for (let resume of result.items) {
-            log.info(`Check resume ${resume.id}`);
-            //check what that resume in our updating list
-            var oldResume = user.lastTimeViews.find(x => x.id == resume.id);
-            if (oldResume == undefined) {
-              log.info(`Resume ${resume.id} don't needed to be monitored, skip it`);
-              continue;
-            }
-            if (resume.new_views > oldResume.views) {
-              //send message, that we have new views
-              oldResume.views = resume.new_views;
-
-              user.storage.resume.selectedResumeOffset = user.storage.resume.resumes.findIndex(
-                x => JSON.parse(x).id == resume.id
-              );
-              this.handler.sendFakeDataMessage('new_resume_view_incoming', user);
-              log.info(`New views detected on resume ${resume.id}`);
-              //currently this function support updating olny of one resume at the same time
-              break;
-            } else {
-              log.info(`No new views detected on resume ${resume.id}`);
-              oldResume.views = resume.new_views;
-            }
-          }
-          log.info(`Work of gettin resume views with user ${user.id} ended.`);
-          user.save();
-        });
-      }
+      return callback(null, statusCode);
     });
   }
 
   updateResumeViewsTaskFunction(task, callback) {
     hh.getMyResumes(task.user.token.access_token, (err, json) => {
       if (err) {
-        log.warn('Received error while updating ' + task.user.id + ' resume:', err);
+        log.warn(`Received error while updating ${task.user.id} resume:`, err);
         return callback(err);
       }
-      callback(null, json);
-    });
-  }
-
-  updateUserTokens(finishCallback) {
-    this.handler.getRandomUsersChunk((err, users) => {
-      if (err) {
-        log.err('Error while getting all users:', err);
-        return;
-      }
-      log.info(`Received users array. We have ${users.length} users.`);
-      var queue = asyncModule.queue(this.updateUserTokensTaskFunction, 1);
-
-      for (let user of users) {
-        if (user.token.access_token == undefined || user.token.access_token == null) {
-          // useless user, don't have resume, that needed to be monitored
-          log.info(`User ${user.id} doesn't have a token, ignore it`);
-          continue;
-        }
-
-        if (user.token.expires_at > Math.ceil(Date.now() / 1000)) {
-          log.info(`User ${user.id} don't look like expired`);
-          continue;
-        }
-
-        queue.push({ user: user }, (err, json) => {
-          if (err) {
-            log.error('Error ', err, ' while processing token for user ', user.id, 'Also res is ', json);
-            if (
-              (err.error == 'invalid_grant' || err.error == 'invalid_request') &&
-              (err.error_description == 'token deactivated' ||
-                err.error_description == 'bad token' ||
-                err.error_description == 'token was revoked' ||
-                err.error_description == 'token has already been refreshed' ||
-                err.error_description == 'token not found')
-            ) {
-              //we need to delete a token for this user
-              log.info(`Delete a token for user ${user.id}`);
-              user.token = undefined;
-              user.save();
-            }
-            return;
-          }
-          log.info(json);
-          user.token = json;
-          //user.token.expires_at = Date.now() + parseInt(user.token.expires_in);
-          user.token.expires_at = Math.round(Date.now() / 1000) + parseInt(json.expires_in);
-          log.warn(user);
-          user.markModified('token');
-          log.info(`Work of updating token with user ${user.id} ended.`);
-          user.save();
-        });
-      }
+      return callback(null, json);
     });
   }
 
   updateUserTokensTaskFunction(task, callback) {
-    hh.updateToken(task.user.token.access_token, task.user.token.refresh_token, function(err, json) {
+    hh.updateToken(task.user.token.access_token, task.user.token.refresh_token, (err, json) => {
       if (err) {
-        log.error('Received error while updating ' + task.user.id + ' resume:', err);
+        log.error(`Received error while updating ${task.user.id} resume:`, err);
         return callback(err);
       }
-      callback(null, json);
+      return callback(null, json);
     });
   }
 }
