@@ -2,6 +2,10 @@ stages:
   - build 
   - deploy
 
+include:
+  - template: Dependency-Scanning.gitlab-ci.yml
+
+
 build:
   stage: build
   image: docker:stable
