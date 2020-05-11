@@ -92,6 +92,12 @@ async function updateResume(task){
 
         if (err.oauth_error && err.oauth_error === 'token-revoked'){
           log.info('Delete token');
+          LogMessage.create({
+            userid: user.id, 
+            action: 'resume_update', 
+            text: `Удаляем невалидный токен`, 
+            object: {err, statusCode, user, task}
+          })
           user.token = undefined;
           user.markModified("token");
         }
