@@ -122,6 +122,13 @@ async function updateUserToken(task) {
               )
           ) {
             //we need to delete a token for this user
+            LogMessage.create({
+              userid: user.id,
+              action: "token_update",
+              text: `Удаляю токен`,
+              object: { err: err, json: json },
+            });
+            
             log.info(`Delete a token for user ${user.id}`);
             user.token = undefined;
             user.save();
