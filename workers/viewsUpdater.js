@@ -1,16 +1,17 @@
-const path = require("path");
-require("dotenv").config({ path: path.join(process.cwd(), "/.env") });
+const path = require('path');
+require('dotenv').config({ path: path.join(process.cwd(), '/.env') });
 
-const amqp = require("amqplib");
-const mongoose = require("mongoose");
+const amqp = require('amqplib');
+const mongoose = require('mongoose');
 
-const log4js = require("log4js");
-const log = log4js.getLogger("hh-telegram-bot-token-updater");
+const log4js = require('log4js');
 
-const User = require("../botModules/models/user");
-const LogMessage = require("../botModules/models/logMessage");
+const log = log4js.getLogger('hh-telegram-bot-token-updater');
 
-const hh = require("../hhApi");
+const User = require('../botModules/models/user');
+const LogMessage = require('../botModules/models/logMessage');
+
+const hh = require('../hhApi');
 
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URL, {
@@ -29,7 +30,7 @@ async function start() {
   amqp
     .connect(serverAddr)
     .then(function(conn) {
-      process.once("SIGINT", function() {
+      process.once('SIGINT', function() {
         conn.close();
       });
       return conn.createChannel().then(function(ch) {
@@ -41,14 +42,14 @@ async function start() {
         });
         ok = ok.then(function() {
           channel.consume(q, proceedMessage, { noAck: false });
-          console.log(" [*] Waiting for messages. To exit press CTRL+C");
+          console.log(' [*] Waiting for messages. To exit press CTRL+C');
         });
 
-        let outOk = ch.assertQueue(outbound_queue_name, { durable: true });
+        const outOk = ch.assertQueue(outbound_queue_name, { durable: true });
 
         return outOk.then(function() {
           // channels[queueName] = ch;
-          console.log("Connected to outbound queue");
+          console.log('Connected to outbound queue');
         });
 
         return ok;
@@ -59,17 +60,17 @@ async function start() {
 
 async function proceedMessage(msg) {
   try {
-    let body = msg.content.toString();
-    let task = JSON.parse(body);
+    const body = msg.content.toString();
+    const task = JSON.parse(body);
 
     await updateResumeViews(task);
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-    console.log(" [x] Done");
+    console.log(' [x] Done');
     channel.ack(msg);
   } catch (ex) {
-    console.log("Error!", ex);
+    console.log('Error!', ex);
     channel.ack(msg);
   }
 }
@@ -81,37 +82,37 @@ async function updateResumeViews(task) {
     setTimeout(reject, 10000);
     hh.getMyResumes(user.token.access_token, async (err, json) => {
       if (err) {
-        log.error("Error ", err, " while processing user ", user);
+        log.error('Error ', err, ' while processing user ', user);
         return;
       }
-      let result = json;
+      const result = json;
       log.info(`Received result from hhApi:`, JSON.stringify(result));
       if (!result) return;
 
-      for (let resume of result.items) {
+      for (const resume of result.items) {
         log.info(`Check resume ${resume.id}`);
-        //check what that resume in our updating list
-        var oldResume = user.lastTimeViews.find((x) => x.id == resume.id);
+        // check what that resume in our updating list
+        const oldResume = user.lastTimeViews.find(x => x.id == resume.id);
         if (oldResume == undefined) {
           log.info(`Resume ${resume.id} don't needed to be monitored, skip it`);
           continue;
         }
         if (resume.new_views > oldResume.views) {
-          //send message, that we have new views
+          // send message, that we have new views
           oldResume.views = resume.new_views;
 
           user.storage.resume.selectedResumeOffset = user.storage.resume.resumes.findIndex(
-            (x) => JSON.parse(x).id == resume.id
+            x => JSON.parse(x).id == resume.id
           );
 
           // this.handler.sendFakeDataMessage('new_resume_view_incoming', user);
           sendNotification(user, {
-            action: "fakeDataMessage",
-            dataMessage: "new_resume_view_incoming",
+            action: 'fakeDataMessage',
+            dataMessage: 'new_resume_view_incoming',
           });
 
           log.info(`New views detected on resume ${resume.id}`);
-          //currently this function support updating olny of one resume at the same time
+          // currently this function support updating olny of one resume at the same time
           break;
         } else {
           log.info(`No new views detected on resume ${resume.id}`);
@@ -130,8 +131,8 @@ function sendNotification(user, payload) {
     outbound_queue_name,
     Buffer.from(
       JSON.stringify({
-        user: user,
-        payload: payload,
+        user,
+        payload,
       })
     ),
     { deliveryMode: true }

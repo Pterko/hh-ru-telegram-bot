@@ -1,9 +1,8 @@
-const amqp = require("amqplib");
+const amqp = require('amqplib');
 
 const serverAddr = process.env.RABBITMQ_URL;
 const q = `${process.env.ENV}_notifications`;
 let channel;
-
 
 setTimeout(() => start(), 10000);
 
@@ -11,7 +10,7 @@ async function start() {
   amqp
     .connect(serverAddr)
     .then(function(conn) {
-      process.once("SIGINT", function() {
+      process.once('SIGINT', function() {
         conn.close();
       });
       return conn.createChannel().then(function(ch) {
@@ -23,7 +22,7 @@ async function start() {
         });
         ok = ok.then(function() {
           channel.consume(q, proceedMessage, { noAck: false });
-          console.log(" [*] Waiting for messages. To exit press CTRL+C");
+          console.log(' [*] Waiting for messages. To exit press CTRL+C');
         });
         return ok;
       });
@@ -33,22 +32,22 @@ async function start() {
 
 async function proceedMessage(msg) {
   try {
-    let body = msg.content.toString();
-    let task = JSON.parse(body);
+    const body = msg.content.toString();
+    const task = JSON.parse(body);
 
     await proceedNotification(task);
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-    console.log(" [x] Done");
+    console.log(' [x] Done');
     channel.ack(msg);
   } catch (ex) {
-    console.log("Error!", ex);
+    console.log('Error!', ex);
     channel.ack(msg);
   }
 }
 
-function proceedNotification(notification){
+function proceedNotification(notification) {
   console.log('proceedNotification', notification);
   // if (notification.action === "fakeDataMessage"){
   global.scenario.acceptNotification(notification);

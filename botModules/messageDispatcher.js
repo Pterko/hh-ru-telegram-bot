@@ -316,9 +316,7 @@ class messageDispatcher {
         responseText = eval(`\`${stateObject.text}\``);
       } catch (ex) {
         log.info('Error:', ex);
-        responseText =
-          'Возникла внутренняя ошибка при генерации текста сообщения. Приносим свои извинения, попробуйте вернуться в главное меню. Информация для отладки: ' +
-          ex.message;
+        responseText = `Возникла внутренняя ошибка при генерации текста сообщения. Приносим свои извинения, попробуйте вернуться в главное меню. Информация для отладки: ${ex.message}`;
       }
       this.emitMessage(user, responseText, options, false);
     }
