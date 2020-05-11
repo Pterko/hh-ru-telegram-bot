@@ -15,6 +15,7 @@ class messageDispatcher {
   constructor(bot, scenarioHandler) {
     this.bot = bot;
     this.scenarioHandler = scenarioHandler;
+
     let str;
     try {
       str = fs.readFileSync('./scenario.yaml', { encoding: 'utf-8' });
@@ -24,9 +25,7 @@ class messageDispatcher {
       log.error(ex.message);
       process.exit(1337);
     }
-    // console.log(str);
 
-    // log.info("Loaded scenario:", this.scenario );
     log.info('Loaded scenario');
 
     this.bot.on('message', this.messageHandler.bind(this));
@@ -146,16 +145,16 @@ class messageDispatcher {
         () => {
           log.info('All promisified successfully');
           const promise = user.save();
-          promise.then(
-            result => {
+          promise
+            .then(result => {
               log.info('User saved');
               if (!(dataHandler.updatePreviousMessage == false)) {
                 this.updateLastMessageAccordingToState(msg, user);
               }
-            }
-          ).catch(error => {
-            log.error('Error while saving user:', error, user);
-          });
+            })
+            .catch(error => {
+              log.error('Error while saving user:', error, user);
+            });
         },
         error => {
           log.error('Error while promisified last promises:', error);
@@ -318,7 +317,8 @@ class messageDispatcher {
       } catch (ex) {
         log.info('Error:', ex);
         responseText =
-          'Возникла внутренняя ошибка при генерации текста сообщения. Приносим свои извинения, попробуйте вернуться в главное меню. Информация для отладки: ' + ex.message;
+          'Возникла внутренняя ошибка при генерации текста сообщения. Приносим свои извинения, попробуйте вернуться в главное меню. Информация для отладки: ' +
+          ex.message;
       }
       this.emitMessage(user, responseText, options, false);
     }
