@@ -6,7 +6,7 @@ const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 const log4js = require('log4js');
 
-const ScenarioModule = require('./botModules/scenario_module');
+const ScenarioModule = require('./botModules/scenarioModule');
 
 const log = log4js.getLogger('HHTELEGRAMBOT');
 
@@ -26,7 +26,7 @@ const scenario = new ScenarioModule(bot);
 
 global.scenario = scenario;
 
-require('./botModules/notifications-catcher');
+require('./botModules/notificationsСatcher');
 
 const app = express();
 
