@@ -9,7 +9,7 @@ const log4js = require('log4js');
 const log = log4js.getLogger('hh-telegram-bot-token-updater');
 
 const User = require('../botModules/models/user');
-const LogMessage = require('../botModules/models/logMessage');
+// const LogMessage = require('../botModules/models/logMessage');
 
 const hh = require('../hhApi');
 
@@ -21,58 +21,20 @@ mongoose.connect(process.env.MONGODB_URL, {
 
 const serverAddr = process.env.RABBITMQ_URL;
 const q = `${process.env.ENV}_update_resume_views`;
-const outbound_queue_name = `${process.env.ENV}_notifications`;
+const outboundQueueName = `${process.env.ENV}_notifications`;
 let channel;
 
-start();
-
-async function start() {
-  amqp
-    .connect(serverAddr)
-    .then(function(conn) {
-      process.once('SIGINT', function() {
-        conn.close();
-      });
-      return conn.createChannel().then(function(ch) {
-        channel = ch;
-
-        let ok = channel.assertQueue(q, { durable: true });
-        ok = ok.then(function() {
-          channel.prefetch(1);
-        });
-        ok = ok.then(function() {
-          channel.consume(q, proceedMessage, { noAck: false });
-          console.log(' [*] Waiting for messages. To exit press CTRL+C');
-        });
-
-        const outOk = ch.assertQueue(outbound_queue_name, { durable: true });
-
-        return outOk.then(function() {
-          // channels[queueName] = ch;
-          console.log('Connected to outbound queue');
-        });
-
-        return ok;
-      });
-    })
-    .catch(console.warn);
-}
-
-async function proceedMessage(msg) {
-  try {
-    const body = msg.content.toString();
-    const task = JSON.parse(body);
-
-    await updateResumeViews(task);
-
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    console.log(' [x] Done');
-    channel.ack(msg);
-  } catch (ex) {
-    console.log('Error!', ex);
-    channel.ack(msg);
-  }
+function sendNotification(user, payload) {
+  channel.sendToQueue(
+    outboundQueueName,
+    Buffer.from(
+      JSON.stringify({
+        user,
+        payload,
+      })
+    ),
+    { deliveryMode: true }
+  );
 }
 
 async function updateResumeViews(task) {
@@ -92,9 +54,10 @@ async function updateResumeViews(task) {
       for (const resume of result.items) {
         log.info(`Check resume ${resume.id}`);
         // check what that resume in our updating list
-        const oldResume = user.lastTimeViews.find(x => x.id == resume.id);
-        if (oldResume == undefined) {
+        const oldResume = user.lastTimeViews.find(x => x.id === resume.id);
+        if (oldResume === undefined) {
           log.info(`Resume ${resume.id} don't needed to be monitored, skip it`);
+          // eslint-disable-next-line no-continue
           continue;
         }
         if (resume.new_views > oldResume.views) {
@@ -102,7 +65,7 @@ async function updateResumeViews(task) {
           oldResume.views = resume.new_views;
 
           user.storage.resume.selectedResumeOffset = user.storage.resume.resumes.findIndex(
-            x => JSON.parse(x).id == resume.id
+            x => JSON.parse(x).id === resume.id
           );
 
           // this.handler.sendFakeDataMessage('new_resume_view_incoming', user);
@@ -126,15 +89,52 @@ async function updateResumeViews(task) {
   });
 }
 
-function sendNotification(user, payload) {
-  channel.sendToQueue(
-    outbound_queue_name,
-    Buffer.from(
-      JSON.stringify({
-        user,
-        payload,
-      })
-    ),
-    { deliveryMode: true }
-  );
+async function proceedMessage(msg) {
+  try {
+    const body = msg.content.toString();
+    const task = JSON.parse(body);
+
+    await updateResumeViews(task);
+
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    console.log(' [x] Done');
+    channel.ack(msg);
+  } catch (ex) {
+    console.log('Error!', ex);
+    channel.ack(msg);
+  }
 }
+
+async function start() {
+  amqp
+    .connect(serverAddr)
+    .then(function(conn) {
+      process.once('SIGINT', function() {
+        conn.close();
+      });
+      return conn.createChannel().then(function(ch) {
+        channel = ch;
+
+        // eslint-disable-next-line no-unused-vars
+        let ok = channel.assertQueue(q, { durable: true });
+        ok = ok.then(function() {
+          channel.prefetch(1);
+        });
+        ok = ok.then(function() {
+          channel.consume(q, proceedMessage, { noAck: false });
+          console.log(' [*] Waiting for messages. To exit press CTRL+C');
+        });
+
+        const outOk = ch.assertQueue(outboundQueueName, { durable: true });
+
+        return outOk.then(function() {
+          // channels[queueName] = ch;
+          console.log('Connected to outbound queue');
+        });
+      });
+    })
+    .catch(console.warn);
+}
+
+start();

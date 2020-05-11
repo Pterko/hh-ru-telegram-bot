@@ -4,7 +4,29 @@ const serverAddr = process.env.RABBITMQ_URL;
 const q = `${process.env.ENV}_notifications`;
 let channel;
 
-setTimeout(() => start(), 10000);
+function proceedNotification(notification) {
+  console.log('proceedNotification', notification);
+  // if (notification.action === "fakeDataMessage"){
+  global.scenario.acceptNotification(notification);
+  // }
+}
+
+async function proceedMessage(msg) {
+  try {
+    const body = msg.content.toString();
+    const task = JSON.parse(body);
+
+    await proceedNotification(task);
+
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    console.log(' [x] Done');
+    channel.ack(msg);
+  } catch (ex) {
+    console.log('Error!', ex);
+    channel.ack(msg);
+  }
+}
 
 async function start() {
   amqp
@@ -30,26 +52,4 @@ async function start() {
     .catch(console.warn);
 }
 
-async function proceedMessage(msg) {
-  try {
-    const body = msg.content.toString();
-    const task = JSON.parse(body);
-
-    await proceedNotification(task);
-
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    console.log(' [x] Done');
-    channel.ack(msg);
-  } catch (ex) {
-    console.log('Error!', ex);
-    channel.ack(msg);
-  }
-}
-
-function proceedNotification(notification) {
-  console.log('proceedNotification', notification);
-  // if (notification.action === "fakeDataMessage"){
-  global.scenario.acceptNotification(notification);
-  // }
-}
+setTimeout(() => start(), 10000);

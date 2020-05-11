@@ -76,30 +76,29 @@ module.exports.getResumeViews = function(options, callback) {
 };
 
 // TODO: understand why function handler differs from others
-module.exports.updateResume = function(token, resume_id, callback) {
+module.exports.updateResume = function(token, resumeId, callback) {
   request.post(
     {
-      url: `https://api.hh.ru/resumes/${resume_id}/publish`,
+      url: `https://api.hh.ru/resumes/${resumeId}/publish`,
       headers: {
         Authorization: ` Bearer ${token}`,
         'User-Agent': useragent,
       },
     },
-    function(err, res, body) {
+    (err, res, body) => {
       const { statusCode } = res;
       console.log(`Update resume result: ${body}`);
       console.log('Status code is:', statusCode);
-      if (body.length == 0) {
+      if (body.length === 0) {
         return callback(null, statusCode);
       }
       const json = JSON.parse(body);
       if (json.error || json.errors) {
         console.log('We are jumping out in a callback with two arguments');
-        callback(json, statusCode);
-        return;
+        return callback(json, statusCode);
       }
       // console.log(res);
-      callback(null, statusCode);
+      return callback(null, statusCode);
     }
   );
 };
