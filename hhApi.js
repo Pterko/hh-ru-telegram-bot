@@ -70,6 +70,10 @@ module.exports.updateResume = function(token, resume_id, callback) {
       },
     },
     function(err, res, body) {
+      if (err){
+        console.log('received error:', err);
+        throw new Error(err);
+      }
       const { statusCode } = res;
       console.log(`Update resume result: ${body}`);
       console.log('Status code is:', statusCode);
