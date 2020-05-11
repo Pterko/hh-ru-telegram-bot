@@ -5,9 +5,23 @@ const request = require('request');
 
 const useragent = 'HeadHunterTelegramBot/1.0 (pter96@gmail.com)';
 
+function handleAnswer(err, res, body, callback) {
+  if (err) {
+    callback(err);
+    return;
+  }
+  // console.log(body);
+  const json = JSON.parse(body);
+  if (json.error || json.errors) {
+    callback(json);
+    return;
+  }
+  callback(null, json);
+}
+
 // TODO: add spaces after commas in functions
 
-module.exports.findVacanciesByQuery = function(options, callback) {
+module.exports.findVacanciesByQuery = (options, callback) => {
   request.get(
     {
       url: `https://api.hh.ru/vacancies?text=${encodeURIComponent(options.query)}&order_by=relevance&area=1&per_page=${
@@ -18,8 +32,10 @@ module.exports.findVacanciesByQuery = function(options, callback) {
         'User-Agent': useragent,
       },
     },
-    function(err, res, body) {
-      handleAnswer(err, res, body, callback);
+    (err, res, body) => {
+      handleAnswer(err, res, body, (arg1, arg2) => {
+        callback(arg1, arg2);
+      });
     }
   );
 };
@@ -138,17 +154,3 @@ module.exports.getAccessTokenByCode = function(code, callback) {
     }
   );
 };
-
-function handleAnswer(err, res, body, callback) {
-  if (err) {
-    callback(err);
-    return;
-  }
-  // console.log(body);
-  const json = JSON.parse(body);
-  if (json.error || json.errors) {
-    callback(json);
-    return;
-  }
-  callback(null, json);
-}
