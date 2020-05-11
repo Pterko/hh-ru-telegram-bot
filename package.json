@@ -9,30 +9,26 @@
     "start-resume-updater": "node ./workers/resumeUpdater.js",
     "start-views-updater": "node ./workers/viewsUpdater.js",
     "dev": "nodemon app.js",
-    "autofix": "eslint *.js --fix"
+    "autofix": "eslint *.js --fix",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "dependencies": {
     "amqplib": "^0.5.5",
-    "async": "^2.0.1",
     "dotenv": "^8.2.0",
     "express": "^4.14.0",
     "js-yaml": "^3.6.1",
-    "jsonfile": "^2.2.3",
     "log4js": "^0.6.33",
     "mongoose": "5.9.9",
-    "morgan": "1.9.1",
     "node-telegram-bot-api": "0.30.0",
     "request": "^2.71.0",
-    "serve-favicon": "~2.3.0",
-    "yamljs": "^0.2.8"
+    "snyk": "^1.320.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
     "eslint": "^6.1.0",
     "eslint-config-airbnb": "^17.1.1",
     "eslint-config-prettier": "^6.0.0",
-    "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-import-resolver-webpack": "^0.11.1",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-prettier": "^3.1.0",
@@ -42,5 +38,6 @@
   },
   "nodemonConfig": {
     "ext": "yaml,js,json"
-  }
+  },
+  "snyk": true
 }

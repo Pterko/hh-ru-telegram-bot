@@ -5,9 +5,23 @@ const request = require('request');
 
 const useragent = 'HeadHunterTelegramBot/1.0 (pter96@gmail.com)';
 
+function handleAnswer(err, res, body, callback) {
+  if (err) {
+    callback(err);
+    return;
+  }
+  // console.log(body);
+  const json = JSON.parse(body);
+  if (json.error || json.errors) {
+    callback(json);
+    return;
+  }
+  callback(null, json);
+}
+
 // TODO: add spaces after commas in functions
 
-module.exports.findVacanciesByQuery = function(options, callback) {
+module.exports.findVacanciesByQuery = (options, callback) => {
   request.get(
     {
       url: `https://api.hh.ru/vacancies?text=${encodeURIComponent(options.query)}&order_by=relevance&area=1&per_page=${
@@ -18,8 +32,10 @@ module.exports.findVacanciesByQuery = function(options, callback) {
         'User-Agent': useragent,
       },
     },
-    function(err, res, body) {
-      handleAnswer(err, res, body, callback);
+    (err, res, body) => {
+      handleAnswer(err, res, body, (arg1, arg2) => {
+        callback(arg1, arg2);
+      });
     }
   );
 };
@@ -60,34 +76,29 @@ module.exports.getResumeViews = function(options, callback) {
 };
 
 // TODO: understand why function handler differs from others
-module.exports.updateResume = function(token, resume_id, callback) {
+module.exports.updateResume = function(token, resumeId, callback) {
   request.post(
     {
-      url: `https://api.hh.ru/resumes/${resume_id}/publish`,
+      url: `https://api.hh.ru/resumes/${resumeId}/publish`,
       headers: {
         Authorization: ` Bearer ${token}`,
         'User-Agent': useragent,
       },
     },
-    function(err, res, body) {
-      if (err){
-        console.log('received error:', err);
-        throw new Error(err);
-      }
+    (err, res, body) => {
       const { statusCode } = res;
       console.log(`Update resume result: ${body}`);
       console.log('Status code is:', statusCode);
-      if (body.length == 0) {
+      if (body.length === 0) {
         return callback(null, statusCode);
       }
       const json = JSON.parse(body);
       if (json.error || json.errors) {
         console.log('We are jumping out in a callback with two arguments');
-        callback(json, statusCode);
-        return;
+        return callback(json, statusCode);
       }
       // console.log(res);
-      callback(null, statusCode);
+      return callback(null, statusCode);
     }
   );
 };
@@ -142,17 +153,3 @@ module.exports.getAccessTokenByCode = function(code, callback) {
     }
   );
 };
-
-function handleAnswer(err, res, body, callback) {
-  if (err) {
-    callback(err);
-    return;
-  }
-  // console.log(body);
-  const json = JSON.parse(body);
-  if (json.error || json.errors) {
-    callback(json);
-    return;
-  }
-  callback(null, json);
-}

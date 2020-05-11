@@ -1,7 +1,8 @@
-var mongoose = require("mongoose");
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
 
-var userSchema = new Schema({
+const { Schema } = mongoose;
+
+const userSchema = new Schema({
   id: Number,
   lastMessageId: Number,
   firstName: String,
@@ -13,20 +14,20 @@ var userSchema = new Schema({
     token_type: String,
     expires_at: Number,
     expires_in: Number,
-    refresh_token: String
+    refresh_token: String,
   },
   lastTimeViews: [
     {
       id: String,
-      views: Number
-    }
+      views: Number,
+    },
   ],
   autoUpdatedResumes: [
     {
       id: String,
       lastTimeUpdate: Number,
-      lastTryToUpdate: Number
-    }
+      lastTryToUpdate: Number,
+    },
   ],
   storage: {
     search: {
@@ -34,12 +35,12 @@ var userSchema = new Schema({
       page: Number,
       pages: Number,
       found: Number,
-      vacancyStr: String
+      vacancyStr: String,
     },
     analytics: {
       last_week_views: Number,
       comparison_percent: Number,
-      comparison_word: String
+      comparison_word: String,
     },
     resume: {
       resumes: [String], // each element: resume
@@ -47,28 +48,28 @@ var userSchema = new Schema({
       resume_views: [
         {
           resume_id: String,
-          views: [{}]
-        }
+          views: [{}],
+        },
       ],
       resume_analytics: [
         {
           resume_id: String,
           last_week_views: Number,
           comparison_percent: Number,
-          comparison_word: String
-        }
+          comparison_word: String,
+        },
       ],
       selectedResumeOffset: Number,
       viewsShow: {
         pages: Number,
         page: Number,
         found: Number,
-        pageStr: String
-      }
-    }
-  }
+        pageStr: String,
+      },
+    },
+  },
 });
 
-var User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;
