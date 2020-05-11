@@ -9,7 +9,9 @@
     "start-resume-updater": "node ./workers/resumeUpdater.js",
     "start-views-updater": "node ./workers/viewsUpdater.js",
     "dev": "nodemon app.js",
-    "autofix": "eslint *.js --fix"
+    "autofix": "eslint *.js --fix",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "dependencies": {
     "amqplib": "^0.5.5",
@@ -23,8 +25,9 @@
     "morgan": "1.9.1",
     "node-telegram-bot-api": "0.30.0",
     "request": "^2.71.0",
-    "serve-favicon": "~2.3.0",
-    "yamljs": "^0.2.8"
+    "serve-favicon": "~2.4.5",
+    "yamljs": "^0.2.8",
+    "snyk": "^1.320.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
@@ -42,5 +45,6 @@
   },
   "nodemonConfig": {
     "ext": "yaml,js,json"
-  }
+  },
+  "snyk": true
 }
