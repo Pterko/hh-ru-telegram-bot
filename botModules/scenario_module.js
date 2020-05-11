@@ -11,7 +11,7 @@ class scenarioModule {
     this.handler = new ScenarioHandler(bot, this);
   }
 
-  static vacancySearchTextHandler(user, text, callback) {
+  vacancySearchTextHandler(user, text, callback) {
     log.info(text);
     const callbackResponse = {
       setState: 'vacancySearchState',
@@ -21,7 +21,7 @@ class scenarioModule {
   }
 
   // this method should return buttons array
-  static vacancySearchButtonsGenerator(user) {
+  vacancySearchButtonsGenerator(user) {
     const buttonsArrayLine = [];
     if (user.storage.search.page > 0) {
       buttonsArrayLine.push({ text: 'Предыдущая страница', callback_data: 'search_prev_page' });
@@ -35,7 +35,7 @@ class scenarioModule {
     return [buttonsArrayLine];
   }
 
-  static resumeSelectButtonsGenerator(user) {
+  resumeSelectButtonsGenerator(user) {
     const buttonsArray = [];
     for (let i = 0; i < user.storage.resume.resumes.length; i += 1) {
       const resume = JSON.parse(user.storage.resume.resumes[i]);
@@ -46,7 +46,7 @@ class scenarioModule {
     return buttonsArray;
   }
 
-  static specificResumeButtonsGenerator(user) {
+  specificResumeButtonsGenerator(user) {
     const buttonsArray = [];
     const selectedResume = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]);
     // create button for "auto-update enable/disable"
@@ -72,7 +72,7 @@ class scenarioModule {
     return buttonsArray;
   }
 
-  static resumeUpdateHandle(user, msg, callback) {
+  resumeUpdateHandle(user, msg, callback) {
     log.info("We're into resumeUpdateHandle function");
     const selectedResume = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]);
     if (selectedResume.status.id === 'published') {
@@ -103,7 +103,7 @@ class scenarioModule {
   }
 
   // this method should return buttons array
-  static resumeViewsButtonsGenerator(user) {
+  resumeViewsButtonsGenerator(user) {
     const buttonsArrayLine = [];
     if (user.storage.resume.viewsShow.page > 0) {
       buttonsArrayLine.push({ text: 'Предыдущая страница', callback_data: 'resume_views_prev_page' });
@@ -133,7 +133,7 @@ class scenarioModule {
     this.generateViewsForResumeViewsShow(user, callback);
   }
 
-  static generateViewsForResumeViewsShow(user, callback) {
+  generateViewsForResumeViewsShow(user, callback) {
     hh.getResumeViews(
       {
         token: user.token.access_token,
@@ -192,7 +192,7 @@ class scenarioModule {
     this.generateVacanciesForUserSearch(user, callback);
   }
 
-  static enableResumeAutoupdate(user) {
+  enableResumeAutoupdate(user) {
     log.info('We are in enableResumeAutoupdate function');
     const currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
     if (user.autoUpdatedResumes.find(x => x.id === currentResumeId)) {
@@ -207,7 +207,7 @@ class scenarioModule {
     };
   }
 
-  static disableResumeAutoupdate(user) {
+  disableResumeAutoupdate(user) {
     log.info('We are in disableResumeAutoupdate function');
     const currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
     const resumeIndex = user.autoUpdatedResumes.findIndex(x => x.id === currentResumeId);
@@ -221,7 +221,7 @@ class scenarioModule {
     };
   }
 
-  static enableResumeMonitoring(user) {
+  enableResumeMonitoring(user) {
     log.info('We are in enableResumeMonitoring function');
     const currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
     if (user.lastTimeViews.find(x => x.id === currentResumeId)) {
@@ -239,7 +239,7 @@ class scenarioModule {
     };
   }
 
-  static disableResumeMonitoring(user) {
+  disableResumeMonitoring(user) {
     log.info('We are in disableResumeMonitoring function');
     const currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
     const resumeIndex = user.lastTimeViews.findIndex(x => x.id === currentResumeId);
@@ -254,7 +254,7 @@ class scenarioModule {
     };
   }
 
-  static generateVacanciesForUserSearch(user, callback) {
+  generateVacanciesForUserSearch(user, callback) {
     hh.findVacanciesByQuery(
       {
         query: user.storage.search.vacancySearchQuery,
@@ -300,12 +300,12 @@ class scenarioModule {
     );
   }
 
-  static forgetUser(user, msg, callback) {
+  forgetUser(user, msg, callback) {
     callback(user, {});
     user.remove();
   }
 
-  static resumeManageSelect(user, msg, callback) {
+  resumeManageSelect(user, msg, callback) {
     // in this method we need to check token existence
     log.info("We're in resume manage select function ", user.token);
     log.info(user.token.length);
@@ -341,7 +341,7 @@ class scenarioModule {
     return callback({ setState: 'awaitTokenState' });
   }
 
-  static resumeAnalyticsHandler(user) {
+  resumeAnalyticsHandler(user) {
     // get id of current resume
     const currentResumeId = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]).id;
     const analytics = user.storage.resume.resume_analytics.find(x => x.resume_id === currentResumeId);
@@ -366,7 +366,7 @@ class scenarioModule {
     // set state analyticsState
   }
 
-  static handleResumeSelect(user, msg) {
+  handleResumeSelect(user, msg) {
     log.info("I'M INTO HANDLE RESUME SELECT");
     if (msg.value) {
       user.storage.resume.selectedResumeOffset = msg.value;
@@ -412,7 +412,7 @@ class scenarioModule {
     });
   }
 
-  static updateResumeTaskFunction(task, callback) {
+  updateResumeTaskFunction(task, callback) {
     hh.updateResume(task.user.token.access_token, task.resume.id, (err, statusCode) => {
       if (err) {
         log.warn(`Received error while updating ${task.user.id} resume:`, err);
@@ -425,7 +425,7 @@ class scenarioModule {
     });
   }
 
-  static updateResumeViewsTaskFunction(task, callback) {
+  updateResumeViewsTaskFunction(task, callback) {
     hh.getMyResumes(task.user.token.access_token, (err, json) => {
       if (err) {
         log.warn(`Received error while updating ${task.user.id} resume:`, err);
@@ -435,7 +435,7 @@ class scenarioModule {
     });
   }
 
-  static updateUserTokensTaskFunction(task, callback) {
+  updateUserTokensTaskFunction(task, callback) {
     hh.updateToken(task.user.token.access_token, task.user.token.refresh_token, (err, json) => {
       if (err) {
         log.error(`Received error while updating ${task.user.id} resume:`, err);

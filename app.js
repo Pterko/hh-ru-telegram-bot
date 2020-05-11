@@ -18,6 +18,8 @@ const bot = new TelegramBot(process.env.BOT_TOKEN, {
   polling: true,
 });
 
+bot.on('polling_error', err => console.log(err));
+
 log.info('Bot started');
 
 const scenario = new ScenarioModule(bot);

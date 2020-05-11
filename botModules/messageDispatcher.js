@@ -426,7 +426,7 @@ class messageDispatcher {
   }
 
   // gets User object from mongodb
-  static getUserObjectFromMsg(msg, callback) {
+  getUserObjectFromMsg(msg, callback) {
     User.findOne({ id: msg.from.id }, (err, user) => {
       if (err) {
         log.warn(err);
@@ -454,7 +454,7 @@ class messageDispatcher {
     });
   }
 
-  static getAllUsers(callback) {
+  getAllUsers(callback) {
     User.find({}, (err, users) => {
       if (err) {
         log.error('Error while gettingAllUsers:', err);
@@ -464,7 +464,7 @@ class messageDispatcher {
     });
   }
 
-  static getRandomUsersChunk(callback) {
+  getRandomUsersChunk(callback) {
     // eslint-disable-next-line consistent-return
     User.aggregate([{ $sample: { size: 50 } }]).exec((err, users) => {
       if (err) {
