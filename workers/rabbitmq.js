@@ -80,11 +80,6 @@ async function sendResumeUpdateTasks() {
                 },
               ],
             },
-            {
-              lastTryToUpdate: {
-                $lt: eligibleLastTryToUpdateDate.getTime(),
-              },
-            },
             { lastTimeUpdate: { $exists: false } },
             { lastTryToUpdate: { $exists: false } },
           ],
@@ -97,9 +92,9 @@ async function sendResumeUpdateTasks() {
     if (user.autoUpdatedResumes) {
       user.autoUpdatedResumes.forEach(autoUpdatedResume => {
         if (
-          ((!autoUpdatedResume.lastTimeUpdate || autoUpdatedResume.lastTimeUpdate < eligibleLastUpdateDate.getTime()) &&
+          (autoUpdatedResume.lastTimeUpdate < eligibleLastUpdateDate.getTime() &&
             autoUpdatedResume.lastTryToUpdate < eligibleLastTryToUpdateDate.getTime()) ||
-          (!autoUpdatedResume.lastTimeUpdate || !autoUpdatedResume.lastTryToUpdate)
+          (!autoUpdatedResume.lastTimeUpdate && !autoUpdatedResume.lastTryToUpdate)
         ) {
           channels[`${process.env.ENV}_update_resumes`].sendToQueue(
             `${process.env.ENV}_update_resumes`,
