@@ -2,6 +2,7 @@ stages:
   - build 
   - deploy
 
+
 build:
   stage: build
   image: docker:stable
