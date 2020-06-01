@@ -90,6 +90,12 @@ spec:
             limits:
               memory: "1024Mi"
               cpu: "500m"
-      dnsPolicy: ClusterFirst
+      dnsPolicy: None
+      dnsConfig: 
+        nameservers:
+          - 1.1.1.1
+          - 8.8.8.8
+        options:
+          - name: single-request-reopen
       restartPolicy: Always
       terminationGracePeriodSeconds: 0
