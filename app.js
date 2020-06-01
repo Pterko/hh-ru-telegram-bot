@@ -51,7 +51,9 @@ app.listen(12000, () => {
 
 // For logging purposes, we catch all uncaught exception, also save our database to disk //
 process.on('uncaughtException', err => {
-  log.error(err);
+  log.error('UNCAUGHT_EXCEPTION TRIGGERED');
+  log.error(err.message);
+  log.error(err.message);
   process.exit(1);
 });
 
