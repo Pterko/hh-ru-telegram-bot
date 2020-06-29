@@ -53,7 +53,9 @@ app.listen(12000, () => {
 process.on('uncaughtException', err => {
   log.error('UNCAUGHT_EXCEPTION TRIGGERED');
   log.error(err.message);
-  log.error(err.message);
+  log.error(err.stack);
+  log.error(err.trace);
+
   process.exit(1);
 });
 

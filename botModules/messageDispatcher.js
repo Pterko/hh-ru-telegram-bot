@@ -443,6 +443,8 @@ class messageDispatcher {
           state: 'start',
         };
         User.create(newUserObject, (localErr, localUser) => {
+          console.log('localerr:', localErr);
+          console.log('localuser:', localUser);
           if (err) {
             log.warn(localErr);
             return callback(localErr);
