@@ -433,7 +433,7 @@ class messageDispatcher {
         return callback(err);
       }
       console.log(`Users arr: ${user}`);
-      if (user === undefined || user == null) {
+      if (user === undefined || user === null) {
         log.info('Create new user');
         const newUserObject = {
           id: msg.from.id,
@@ -451,8 +451,9 @@ class messageDispatcher {
           }
           return callback(null, localUser);
         });
+      } else {
+        return callback(null, user);
       }
-      return callback(null, user);
     });
   }
 
