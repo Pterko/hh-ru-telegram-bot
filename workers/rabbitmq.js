@@ -92,8 +92,14 @@ async function sendResumeUpdateTasks() {
     if (user.autoUpdatedResumes) {
       user.autoUpdatedResumes.forEach(autoUpdatedResume => {
         if (
+          // case for usual resumes which were sucessefully updated at least one time
           (autoUpdatedResume.lastTimeUpdate < eligibleLastUpdateDate.getTime() &&
             autoUpdatedResume.lastTryToUpdate < eligibleLastTryToUpdateDate.getTime()) ||
+          // case for new resumes which have attempt, but it was failed
+          (!autoUpdatedResume.lastTimeUpdate &&
+            autoUpdatedResume.lastTryToUpdate &&
+            autoUpdatedResume.lastTryToUpdate < eligibleLastTryToUpdateDate.getTime()) ||
+          // case for new resumes
           (!autoUpdatedResume.lastTimeUpdate && !autoUpdatedResume.lastTryToUpdate)
         ) {
           channels[`${process.env.ENV}_update_resumes`].sendToQueue(
