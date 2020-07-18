@@ -100,7 +100,9 @@ async function sendResumeUpdateTasks() {
             autoUpdatedResume.lastTryToUpdate &&
             autoUpdatedResume.lastTryToUpdate < eligibleLastTryToUpdateDate.getTime()) ||
           // case for new resumes
-          (!autoUpdatedResume.lastTimeUpdate && !autoUpdatedResume.lastTryToUpdate)
+          (!autoUpdatedResume.lastTimeUpdate && !autoUpdatedResume.lastTryToUpdate) ||
+          // case for resumes that have only success attempts
+          (!autoUpdatedResume.lastTryToUpdate && autoUpdatedResume.lastTimeUpdate < eligibleLastUpdateDate.getTime())
         ) {
           channels[`${process.env.ENV}_update_resumes`].sendToQueue(
             `${process.env.ENV}_update_resumes`,
