@@ -75,7 +75,7 @@ class scenarioModule {
   resumeUpdateHandle(user, msg, callback) {
     log.info("We're into resumeUpdateHandle function");
     const selectedResume = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]);
-    if (selectedResume.status.id === 'published') {
+    if (selectedResume.status.id === 'published' || selectedResume.status.id === 'modified') {
       hh.updateResume(user.token.access_token, selectedResume.id, (err, res) => {
         log.info('UpdateResumeResult:', res);
         if (res === 204) {
@@ -93,13 +93,14 @@ class scenarioModule {
           });
         }
         return callback({
-          showAlert: 'Неизвестная ошибка',
+          showAlert: 'Произошла ошибка с кодом ' + res,
         });
       });
+    } else {
+      return callback({
+        showAlert: 'Данное резюме еще не опубликовано, не могу обновить его!',
+      });
     }
-    return callback({
-      showAlert: 'Данное резюме еще не опубликовано, не могу обновить его!',
-    });
   }
 
   // this method should return buttons array
