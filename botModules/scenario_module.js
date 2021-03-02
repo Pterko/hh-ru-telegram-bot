@@ -105,7 +105,7 @@ class scenarioModule {
     resumeUpdateHandle(user, msg, callback){
         log.info("We're into resumeUpdateHandle function");
         let selectedResume = JSON.parse(user.storage.resume.resumes[user.storage.resume.selectedResumeOffset]);
-        if (selectedResume.status.id == "published"){
+        if (selectedResume.status.id == "published" || selectedResume.status.id == "modified"){
             hh.updateResume(user.token.access_token, selectedResume.id, (err,res) =>{
                 log.info("UpdateResumeResult:"+res);
                 if ( res == 204 ){
@@ -122,6 +122,9 @@ class scenarioModule {
                         showAlert: "Еще рано для обновления, попробуйте позже"
                     });
                 }
+                return callback({
+                        showAlert: "При обновлении возникла ошибка с кодом " + res
+                });
             });
         } else {
             return callback({
