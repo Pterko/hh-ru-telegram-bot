@@ -151,7 +151,11 @@ async function start() {
         return ok;
       });
     })
-    .catch(console.warn);
+    .catch((err) => {
+      console.error('Connection was lost, info below');
+      console.error(err);
+      setTimeout(() => process.exit(5541), 10000);
+    });
 }
 
 start();
