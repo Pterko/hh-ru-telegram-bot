@@ -14,7 +14,7 @@
     "prepare": "npm run snyk-protect"
   },
   "dependencies": {
-    "amqplib": "^0.5.5",
+    "amqplib": "^0.8.0",
     "dotenv": "^8.2.0",
     "express": "^4.14.0",
     "js-yaml": "^3.6.1",
