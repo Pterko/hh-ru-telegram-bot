@@ -19,7 +19,7 @@
     "express": "^4.14.0",
     "js-yaml": "^3.6.1",
     "log4js": "^0.6.33",
-    "mongoose": "5.9.9",
+    "mongoose": "^5.13.9",
     "node-telegram-bot-api": "0.30.0",
     "request": "^2.71.0",
     "snyk": "^1.320.1"
