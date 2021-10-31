@@ -10,8 +10,7 @@
     "start-views-updater": "node ./workers/viewsUpdater.js",
     "dev": "nodemon app.js",
     "autofix": "eslint *.js --fix",
-    "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "snyk-protect": "snyk protect"
   },
   "dependencies": {
     "amqplib": "^0.8.0",
