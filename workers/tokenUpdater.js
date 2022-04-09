@@ -58,7 +58,7 @@ async function updateUserToken(task) {
 
   // eslint-disable-next-line no-new
   new Promise((resolve, reject) => {
-    setTimeout(reject, 10000);
+    setTimeout(reject('timeout'), 20000);
     return hh.updateToken(user.token.access_token, user.token.refresh_token, (err, json) => {
       if (err) {
         log.error('Error ', err, ' while processing token for user ', user.id, 'Also res is ', json);
@@ -109,7 +109,7 @@ async function updateUserToken(task) {
       user.save();
       resolve();
     });
-  });
+  }).catch(err => console.log('There was an error in promise', err));
 }
 
 // eslint-disable-next-line consistent-return
