@@ -8,7 +8,7 @@ WORKDIR /app
 # работает с npm@5+
 COPY package*.json ./
 
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 # Используется при сборке кода в продакшене
 # RUN npm install --only=production
 
