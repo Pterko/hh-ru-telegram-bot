@@ -32,6 +32,7 @@ const q = `${process.env.ENV}_update_tokens`;
 let channel;
 
 async function updateUserToken(task) {
+  console.log('Working with user', task._id);
   const user = await User.findOne({ _id: task._id });
   if (user.token.access_token === undefined || user.token.access_token == null) {
     // useless user, don't have resume, that needed to be monitored
@@ -109,7 +110,7 @@ async function updateUserToken(task) {
       user.save();
       resolve();
     });
-  }).catch(err => console.log('There was an error in promise', err));
+  }).catch(err => console.log((new Date().toISOString), 'There was an error in promise', err, ' ', task._id));
 }
 
 // eslint-disable-next-line consistent-return
@@ -127,10 +128,10 @@ const proceedMessage = async msg => {
 
     await new Promise(resolve => setTimeout(resolve, 300));
 
-    console.log(' [x] Done');
+    console.log((new Date().toISOString), '[x] Done', ' ', task._id);
     channel.ack(msg);
   } catch (ex) {
-    console.log('Error!', ex);
+    console.log((new Date().toISOString), 'Error!', ex);
     channel.ack(msg);
   }
 };
