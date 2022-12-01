@@ -58,7 +58,7 @@ async function updateUserToken(task) {
 
   // eslint-disable-next-line no-new
   new Promise((resolve, reject) => {
-    setTimeout(reject('timeout'), 20000);
+    setTimeout(reject('timeout'), 60000);
     return hh.updateToken(user.token.access_token, user.token.refresh_token, (err, json) => {
       if (err) {
         log.error('Error ', err, ' while processing token for user ', user.id, 'Also res is ', json);
