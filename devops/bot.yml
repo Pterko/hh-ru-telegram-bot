@@ -79,6 +79,12 @@ spec:
           image: registry.gitlab.com/pter/hh-ru-telegram-bot/bot:${CI_COMMIT_REF_SLUG}
           imagePullPolicy: Always
           name: hh-bot
+          livenessProbe:
+            exec:
+              command:
+                - bin/sh
+                - -c
+                - "end=$(date -u +%s);start=$(stat -c %Z /proc/1 | awk '{print int($1)}'); test $(($end-$start)) -lt 86400"
           ports:
           - containerPort: 12000
             name: setnamehere
