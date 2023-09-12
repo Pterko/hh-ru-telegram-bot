@@ -20,6 +20,8 @@ const serverAddr = process.env.RABBITMQ_URL;
 const q = `${process.env.ENV}_update_resumes`;
 let channel;
 
+const startUnixtime = Date.now();
+
 async function updateResume(task) {
   return new Promise(async (resolve, reject) => {
     setTimeout(reject, 5000);
@@ -127,6 +129,9 @@ async function proceedMessage(msg) {
 
     console.log(' [x] Done');
     channel.ack(msg);
+    if (Date.now() - startUnixtime > 86_400_000){
+      process.exit(322);
+    }
   } catch (ex) {
     console.log('Error!', ex);
     channel.ack(msg);
@@ -162,3 +167,5 @@ async function start() {
 }
 
 start();
+
+
