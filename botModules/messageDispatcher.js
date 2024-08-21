@@ -231,7 +231,7 @@ class messageDispatcher {
         options.parse_mode = stateObject.parseMode;
       }
 
-      if (update === true) {
+      if (update === true && user.lastMessageId) {
         options.chat_id = user.id;
         options.message_id = user.lastMessageId;
         this.bot.editMessageText(responseText, options);
