@@ -1,0 +1,93 @@
+
+services:
+  bot:
+    image: ghcr.io/pterko/hh-ru-telegram-bot:master
+    container_name: hhbot-main
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:12000:12000"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=hhbot"
+      - "traefik.enable=true"
+      - "traefik.http.routers.hhbot.rule=Host(`master.hhbot.pterko.ru`)"
+      - "traefik.http.routers.hhbot.entrypoints=websecure"
+      - "traefik.http.routers.hhbot.tls.certresolver=letsencrypt"
+      - "traefik.http.services.hhbot.loadbalancer.server.port=12000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "128m"
+        max-file: "2"
+
+  resume-updater:
+    image: ghcr.io/pterko/hh-ru-telegram-bot:master
+    container_name: hhbot-resume-updater
+    restart: unless-stopped
+    command: npm run start-resume-updater
+    env_file:
+      - .env
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=hhbot"
+    logging:
+      driver: json-file
+      options:
+        max-size: "128m"
+        max-file: "2"
+
+  token-updater:
+    image: ghcr.io/pterko/hh-ru-telegram-bot:master
+    container_name: hhbot-token-updater
+    restart: unless-stopped
+    command: npm run start-token-updater
+    env_file:
+      - .env
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=hhbot"
+    logging:
+      driver: json-file
+      options:
+        max-size: "128m"
+        max-file: "2"
+
+  views-updater:
+    image: ghcr.io/pterko/hh-ru-telegram-bot:master
+    container_name: hhbot-views-updater
+    restart: unless-stopped
+    command: npm run start-views-updater
+    env_file:
+      - .env
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=hhbot"
+    logging:
+      driver: json-file
+      options:
+        max-size: "128m"
+        max-file: "2"
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: hhbot-watchtower
+    restart: unless-stopped
+    command: --scope hhbot
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_LABEL_ENABLE=true
+      - WATCHTOWER_POLL_INTERVAL=300
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: json-file
+      options:
+        max-size: "128m"
+        max-file: "2"
+
+networks:
+  default:
+    external:
+      name: traefik-net
