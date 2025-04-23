@@ -36,7 +36,7 @@ jobs:
 
       # Build Docker Image
       - name: Build Docker image
-        run: docker build  -t ghcr.io/pterko/hh-ru-telegram-bot:${{ github.ref_name }} .
+        run: docker build -f Dockerfile.bot -t ghcr.io/pterko/hh-ru-telegram-bot:${{ github.ref_name }} .
 
       # Log in to GitHub Container Registry
       - name: Log in to GitHub Container Registry
