@@ -4,7 +4,7 @@ name: Main-Pipeline
 on:
   workflow_dispatch:
   push:
-    branches: [main, dev]
+    branches: [master, dev]
   #pull_request:
   #  branches: [main, dev]
 
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: |-
       ${{
-         github.ref_name == 'main' && 'Prod'
+         github.ref_name == 'master' && 'Prod'
       || github.ref_name == 'dev'  && 'Dev'
       }}
     permissions:
@@ -51,7 +51,7 @@ jobs:
     needs: build-and-test
     environment: |-
       ${{
-         github.ref_name == 'main' && 'Prod'
+         github.ref_name == 'master' && 'Prod'
       || github.ref_name == 'dev'  && 'Dev'
       ||                              'Staging'
       }}
